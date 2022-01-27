@@ -13,11 +13,13 @@ module.exports = {
       },
       colors: {
         'light-gray': '#E3E3E3',
-        'base-gray': '#EBEBEB',
+        'main-gray': '#EBEBEB',
         'dark-gray': '#747376',
         'black-gray': '#2A2A2A',
+        'main-green': '#4C9981',
       },
       spacing: {
+        '4px': '4px',
         '8px': '8px',
         '16px': '16px',
         '24px': '24px',
@@ -28,6 +30,10 @@ module.exports = {
       },
       height: {
         '40px': '40px',
+        '100px': '100px',
+      },
+      width: {
+        '100px': '100px',
       },
       borderRadius: {
         '20px': '20px',

@@ -2,10 +2,12 @@ import Button from '../components/Button';
 import { bridge } from '../helpers/bridge';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
+import { accountState } from '../state';
 
 function SignInPage() {
   const navigate = useNavigate();
-  const [account, setAccount] = useState<string>();
+  const [account, setAccount] = useRecoilState(accountState);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
