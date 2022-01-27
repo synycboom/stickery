@@ -23,7 +23,7 @@ export default function(sequelize: Sequelize) {
       allowNull: false,
     },
     position: {
-      type: DataTypes.STRING,
+      type: DataTypes.JSON,
       allowNull: false,
     }
   });

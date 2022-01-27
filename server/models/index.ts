@@ -1,6 +1,7 @@
 import initializeCategory from './category';
 import initializeSticker from './sticker';
 import initializeStickedPost from './stickedPost';
+import initializeUser from './user';
 import sequelize from '../db';
 
 export async function initialize() {
@@ -10,6 +11,7 @@ export async function initialize() {
   const Category = initializeCategory(sequelize);
   const Sticker = initializeSticker(sequelize);
   const StickedPost = initializeStickedPost(sequelize);
+  const User = initializeUser(sequelize);
 
   Category.hasMany(Sticker, {
     sourceKey: "id",
@@ -22,10 +24,18 @@ export async function initialize() {
     foreignKey: "stickerId",
     as: "stickedPosts",
     onDelete: 'CASCADE',
-  })
+  });
+
+  User.hasMany(StickedPost, {
+    sourceKey: "id",
+    foreignKey: "userid",
+    as: "stickedPosts",
+    onDelete: 'CASCADE',
+  });
 
   await Category.sync({ alter: true });
   await Sticker.sync({ alter: true });
+  await User.sync({ alter: true });
   await StickedPost.sync({ alter: true });
   console.log('[initialize]: DB models has been initialized');
 
