@@ -101,4 +101,5 @@ router.delete(
     res.status(204).json({});
   })
 )
+
 export default router;

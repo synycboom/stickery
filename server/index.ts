@@ -2,27 +2,18 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-import express, { Application, Request, Response } from "express";
+import express, { Application } from "express";
 import { initialize } from './models';
 import categoryRoutes from './apis/category';
+import stickerRoutes from './apis/sticker';
 
 const app: Application = express();
 const port = process.env.PORT || 8080;
 
-// Body parsing Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-app.get(
-  "/",
-  async (req: Request, res: Response): Promise<Response> => {
-    return res.status(200).send({
-      message: "Hello World!",
-    });
-  }
-);
-
 app.use('/v1/categories', categoryRoutes);
+app.use('/v1/stickers', stickerRoutes);
 
 async function start() {
   await initialize();

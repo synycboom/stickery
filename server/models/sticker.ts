@@ -8,7 +8,7 @@ export default function(sequelize: Sequelize) {
       primaryKey: true
     },
     url: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
   });
