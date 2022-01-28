@@ -34,7 +34,7 @@ router.post(
   '/',
   body('categoryId')
     .isNumeric()
-    .withMessage('categoryId must be a number reference to a category'),
+    .withMessage('categoryId must be a number referencing to a category'),
   body('url')
     .isString()
     .withMessage('url must be string')
@@ -83,7 +83,7 @@ router.patch(
     .withMessage('id must be an integer'),
   body('categoryId')
     .isNumeric()
-    .withMessage('categoryId must be a number reference to a category'),
+    .withMessage('categoryId must be a number referencing to a category'),
   body('url')
     .isString()
     .withMessage('url must be string')

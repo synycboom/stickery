@@ -6,6 +6,8 @@ import express, { Application } from "express";
 import { initialize } from './models';
 import categoryRoutes from './apis/category';
 import stickerRoutes from './apis/sticker';
+import postRoutes from './apis/post';
+import errorHandler from './errors/handler';
 
 const app: Application = express();
 const port = process.env.PORT || 8080;
@@ -14,6 +16,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/v1/categories', categoryRoutes);
 app.use('/v1/stickers', stickerRoutes);
+app.use('/v1/posts', postRoutes);
+app.use(errorHandler);
 
 async function start() {
   await initialize();

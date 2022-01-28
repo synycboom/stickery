@@ -11,5 +11,19 @@ export default function(sequelize: Sequelize) {
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    categoryId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   });
+};
+
+export const isValidStickerId = async (sequelize: Sequelize, id: string) => {
+  const count = await sequelize.models.sticker.count({
+    where: {
+      id,
+    }
+  });
+
+  return count > 0;
 };

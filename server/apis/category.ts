@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { body, validationResult, param } from 'express-validator';
 import sequelize from '../db';
+import ValidationError from '../errors/validation';
 
 const router = express.Router();
 
@@ -39,8 +40,7 @@ router.post(
   asyncHandler(async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
-      return;
+      throw new ValidationError(errors.array());
     }
 
     const category = await sequelize.models.category.create({
@@ -66,8 +66,7 @@ router.patch(
   asyncHandler(async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
-      return;
+      throw new ValidationError(errors.array());
     }
 
     const [updated] = await sequelize.models.category.update({
