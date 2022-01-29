@@ -8,10 +8,10 @@ const router = express.Router();
 
 // TODO: Pagination
 router.get('/', asyncHandler(async (req, res) => {
-  const { category } = req.query;
+  const { categoryId } = req.query;
   const where: Record<string, any> = {};
-  if (category) {
-    where['category'] = category;
+  if (categoryId) {
+    where['categoryId'] = categoryId;
   }
 
   const stickers = await sequelize.models.sticker.findAll({
