@@ -325,23 +325,10 @@
 					"name": "RemoveSticker",
 					"request": {
 						"method": "POST",
-						"header": [
-							{
-								"key": "",
-								"value": "",
-								"type": "text",
-								"disabled": true
-							},
-							{
-								"key": "",
-								"value": "",
-								"type": "text",
-								"disabled": true
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"position\": {\n        \"number\": 1,\n        \"nftTokenAddress\": \"0xBA12222222228d8Ba445958a75a0704d566BF2C8\", \n        \"nftTokenId\": \"1\", \n        \"imageUrl\": \"https://images.com\",\n        \"spec\": \"\"\n    },\n    \"platform\": \"twitter\",\n    \"foreignId\": \"test\"\n}\n",
+							"raw": "{\n    \"position\": {\n        \"number\": 1\n    },\n    \"platform\": \"twitter\",\n    \"foreignId\": \"test\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
