@@ -3,20 +3,25 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import express, { Application } from "express";
+import cookieParser from 'cookie-parser';
 import { initialize } from './models';
 import categoryRoutes from './apis/category';
 import stickerRoutes from './apis/sticker';
 import postRoutes from './apis/post';
+import authRoutes from './apis/auth';
 import errorHandler from './errors/handler';
+import { authenticateToken } from './apis/middleware';
 
 const app: Application = express();
 const port = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/v1/categories', categoryRoutes);
-app.use('/v1/stickers', stickerRoutes);
-app.use('/v1/posts', postRoutes);
+app.use(cookieParser());
+app.use('/v1/categories', authenticateToken, categoryRoutes);
+app.use('/v1/stickers', authenticateToken, stickerRoutes);
+app.use('/v1/posts', authenticateToken, postRoutes);
+app.use('/v1/auth', authRoutes);
 app.use(errorHandler);
 
 async function start() {

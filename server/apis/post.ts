@@ -1,30 +1,57 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { validationResult, checkSchema } from 'express-validator';
-import isUrl from 'validator/lib/isUrl';
 import isHexadecimal from 'validator/lib/isHexadecimal';
 import sequelize from '../db';
-import { getOrCreatePost } from '../models/post';
-import { updatePosition } from '../models/position';
+import { getOrCreatePost, getPost } from '../models/post';
+import { updatePosition, removePosition } from '../models/position';
 import { isValidStickerId } from '../models/sticker';
 import ValidationError from '../errors/validation';
+import { ExtendedRequest } from './type';
+import NotFoundError from '../errors/notfound';
+import { Op } from 'sequelize';
 
 const router = express.Router();
 
-router.get('/:id', asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const post = await sequelize.models.post.findOne({
-    where: { id },
-  });
-  if (!post) {
-    res.status(404).send('Not Found');
-    return;
-  }
+const listPostsValidator = checkSchema({
+  platform: {
+    isIn: {
+      options: ['twitter', 'instagram'],
+      errorMessage: 'platform must be one of "twitter" or "instagram"',
+    }
+  },
+}, ['query']);
 
-  res.status(200).json({
-    ...post.toJSON(),
-  });
-}));
+router.get(
+  '/',
+  listPostsValidator,
+  asyncHandler(async (req, res) => {
+    const { foreignIds, platform } = req.query;
+    const where: Record<string, any> = {};
+    if (platform) {
+      where['platform'] = platform;
+    }
+
+    if (foreignIds) {
+      const ids = foreignIds.toString().split(','); 
+
+      where['foreignId'] = {
+        [Op.in]: ids
+      };
+    }
+
+    let posts = await sequelize.models.post.findAll({
+      where,
+      include: { model: sequelize.models.position, as: 'positions' },
+    });
+
+    posts = posts.map((item) => item.toJSON());
+
+    res.status(200).json({
+      items: posts,
+    });
+  }
+));
 
 const stickValidator = checkSchema({
   foreignId: {
@@ -71,12 +98,9 @@ const stickValidator = checkSchema({
           }
         }
 
-        const { stickerId, nftTokenAddress, nftTokenId, imageUrl } = position;
+        const { stickerId, nftTokenAddress, nftTokenId } = position;
         if (!stickerId && (!nftTokenAddress || !nftTokenId)) {
           throw new Error('position should have either sticker or nft');
-        }
-        if (!isUrl(imageUrl)) {
-          throw new Error('position.imageUrl is not a valid url');
         }
         if (stickerId && !await isValidStickerId(sequelize, stickerId)) {
           throw new Error('position.stickerId is not valid');
@@ -96,12 +120,12 @@ const stickValidator = checkSchema({
 router.post(
   '/stick',
   stickValidator,
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: ExtendedRequest, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       throw new ValidationError(errors.array());
     }
-
+    
     const { platform, foreignId, position } = req.body;
     const [post] = await getOrCreatePost(sequelize, platform, foreignId);
     await updatePosition(sequelize, {
@@ -111,27 +135,36 @@ router.post(
       stickerId: position.stickerId,
       nftTokenAddress: position.nftTokenAddress,
       nftTokenId: position.nftTokenId,
-      imageUrl: position.imageUrl,
+      userId: req.userId!,
     });
 
     res.status(200).send({});
   })
 );
 
-// router.delete(
-//   '/:id',
-//   param('id')
-//     .isNumeric()
-//     .withMessage('id must be an integer'),
-//   asyncHandler(async (req, res) => {
-//     await sequelize.models.post.destroy({
-//       where: {
-//         id: req.params!.id,
-//       }
-//     });
+router.post(
+  '/remove',
+  stickValidator,
+  asyncHandler(async (req: ExtendedRequest, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      throw new ValidationError(errors.array());
+    }
+    
+    const { platform, foreignId, position } = req.body;
+    const post = await getPost(sequelize, platform, foreignId);
+    if (!post) {
+      throw new NotFoundError();
+    }
 
-//     res.status(204).json({});
-//   })
-// )
+    await removePosition(sequelize, {
+      postId: post.getDataValue('id'),
+      number: position.number,
+      userId: req.userId!,
+    });
+
+    res.status(204).end();
+  })
+);
 
 export default router;

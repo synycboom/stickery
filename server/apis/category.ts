@@ -6,7 +6,6 @@ import ValidationError from '../errors/validation';
 
 const router = express.Router();
 
-// TODO: Pagination
 router.get('/', asyncHandler(async (_, res) => {
   const categories = await sequelize.models.category.findAll();
 

@@ -38,3 +38,12 @@ export async function getOrCreatePost(sequelize: Sequelize, platform: string, fo
     },
   });
 };
+
+export async function getPost(sequelize: Sequelize, platform: string, foreignId: string) {
+  return await sequelize.models.post.findOne({
+    where: {
+      platform,
+      foreignId,
+    },
+  });
+};

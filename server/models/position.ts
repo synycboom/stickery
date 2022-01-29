@@ -1,4 +1,6 @@
 import { Sequelize, DataTypes } from 'sequelize';
+import NotFoundError from '../errors/notfound';
+import UnauthorizedError from '../errors/unauthorized';
 
 export default function (sequelize: Sequelize) {
   return sequelize.define('position', {
@@ -19,10 +21,6 @@ export default function (sequelize: Sequelize) {
     },
     nftTokenId: {
       type: DataTypes.TEXT,
-    },
-    imageUrl: {
-      type: DataTypes.TEXT,
-      allowNull: false,
     },
     postId: {
       type: DataTypes.INTEGER,
@@ -49,10 +47,10 @@ export default function (sequelize: Sequelize) {
 type UpdatePositionParams = {
   postId: number,
   number: number,
-  imageUrl: string,
   stickerId?: number,
   nftTokenAddress?: string,
   nftTokenId?: string,
+  userId: number,
   spec: Object,
 }
 
@@ -69,7 +67,7 @@ export async function updatePosition(
         number: params.number,
       },
       defaults: {
-        imageUrl: '',
+        userId: params.userId,
       },
       transaction: tx,
     });
@@ -78,8 +76,8 @@ export async function updatePosition(
       stickerId: params.stickerId,
       nftTokenAddress: params.nftTokenAddress,
       nftTokenId: params.nftTokenId,
-      imageUrl: params.imageUrl,
       spec: params.spec,
+      userId: params.userId,
     });
 
     await position.save({ transaction: tx });
@@ -90,3 +88,26 @@ export async function updatePosition(
     throw err;
   }
 };
+
+type RemovePositionParams = {
+  postId: number,
+  number: number,
+  userId: number,
+}
+
+export async function removePosition(sequelize: Sequelize, params: RemovePositionParams) {
+  const position = await sequelize.models.position.findOne({
+    where: {
+      postId: params.postId,
+      number: params.number,
+    },
+  });
+  if (!position) {
+    throw new NotFoundError();
+  }
+  if (position.getDataValue('userId') !== params.userId) {
+    throw new UnauthorizedError();
+  }
+
+  await position.destroy();
+}

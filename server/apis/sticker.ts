@@ -7,8 +7,16 @@ import sequelize from '../db';
 const router = express.Router();
 
 // TODO: Pagination
-router.get('/', asyncHandler(async (_, res) => {
-  const stickers = await sequelize.models.sticker.findAll();
+router.get('/', asyncHandler(async (req, res) => {
+  const { category } = req.query;
+  const where: Record<string, any> = {};
+  if (category) {
+    where['category'] = category;
+  }
+
+  const stickers = await sequelize.models.sticker.findAll({
+    where,
+  });
 
   res.status(200).json({
     items: stickers,
