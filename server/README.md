@@ -20,3 +20,6 @@ $ npm ci
 # run development server
 $ npm run dev
 ```
+
+## Miscellaneous
+- https://app.mycrypto.com/sign-message
