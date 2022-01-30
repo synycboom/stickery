@@ -1,8 +1,8 @@
 import { useState } from 'react';
+import EmojiContent from './EmojiContent';
 
 const TAB_LIST = ['Emoji', 'NFT Stickers'];
 
-const number = Array.from(Array(10).keys());
 const Tab = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   return (
@@ -11,24 +11,14 @@ const Tab = () => {
         {TAB_LIST.map((title, index) => (
           <TabItem
             index={index}
+            key={index}
             title={title}
             activeIndex={activeIndex}
             onClick={() => setActiveIndex(index)}
           />
         ))}
       </ul>
-      {activeIndex === 0 && (
-        <div className="p-8px">
-          <div className="flex items-center after:border-light-gray after:ml-8px after:border-solid after:border after:flex-1 py-16px">
-            <span className="text-xs font-medium text-dark-gray">Stickerpack name</span>
-          </div>
-          <div className="flex flex-wrap justify-between">
-            {number.map(() => (
-              <img src="/sample.png" className="w-100px h-100px p-4px" alt="sticker" />
-            ))}
-          </div>
-        </div>
-      )}
+      {activeIndex === 0 && <EmojiContent />}
       {activeIndex === 1 && <p className="p-24px text-center">Coming soon...</p>}
     </>
   );
