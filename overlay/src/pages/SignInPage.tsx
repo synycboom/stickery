@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { accountState } from '../state';
+import { checkAuthen, getChallengeCode, login } from '../apis/auth';
 
 function SignInPage() {
   const navigate = useNavigate();
@@ -11,23 +12,21 @@ function SignInPage() {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    bridge.isWalletConnected().then(async (isWalletConnected) => {
-      let accountName: string | undefined;
-      if (isWalletConnected) {
+    checkAuthen()
+      .then(({ publicAddress }) => {
+        setAccount(publicAddress);
         navigate('/');
-        accountName = await bridge.getCurrentEthAccount();
-        setAccount(accountName);
-      } else {
+      })
+      .catch(() => {
         setLoading(false);
-      }
-    });
+      });
   }, []);
 
   useEffect(() => {
     if (account) {
       navigate('/');
     }
-  }, [account]);
+  }, [account, navigate]);
 
   return (
     <div className="flex flex-col justify-center items-center h-screen w-screen">
@@ -41,14 +40,15 @@ function SignInPage() {
             <Button
               fullWidth
               onClick={async () => {
-                const isWalletConnected = await bridge.isWalletConnected();
-                let accountName: string;
-                if (!isWalletConnected) {
-                  accountName = await bridge.connectWallet();
-                } else {
-                  accountName = await bridge.getCurrentEthAccount();
+                try {
+                  const account = await bridge.connectWallet();
+                  const { challenge } = await getChallengeCode(account);
+                  const hash = await bridge.signMessage(account, challenge);
+                  await login(account, hash);
+                  setAccount(account);
+                } catch {
+                  setLoading(false);
                 }
-                setAccount(accountName);
               }}
             >
               <img className="mr-8px" src="/dapplets.svg" alt="dapplet-icon" /> Sign in with

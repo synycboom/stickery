@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
+import { logout } from '../apis/auth';
 import { bridge } from '../helpers/bridge';
 import { formatAddress } from '../helpers/utils';
 import { accountState } from '../state';
@@ -29,12 +30,10 @@ const Profile = () => {
             <Button
               fullWidth
               onClick={async () => {
-                const isWalletConnected = await bridge.isWalletConnected();
-                if (isWalletConnected) {
-                  await bridge.disconnectWallet();
-                  setAccount('');
-                  navigate('/sign-in');
-                }
+                await bridge.disconnectWallet();
+                window.localStorage.removeItem('token');
+                setAccount('');
+                navigate('/sign-in');
               }}
             >
               Log out

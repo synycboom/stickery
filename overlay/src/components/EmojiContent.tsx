@@ -8,14 +8,14 @@ const EmojiContent = () => {
   return (
     <div className="p-8px">
       {categories.map((category) => (
-        <>
+        <div key={category.id}>
           <div className="flex items-center after:border-light-gray after:ml-8px after:border-solid after:border after:flex-1 py-16px">
             <span className="text-xs font-medium text-dark-gray">{category.name}</span>
           </div>
           <div className="grid grid-cols-3 gap-3">
             <StickerList categoryId={category.id} />
           </div>
-        </>
+        </div>
       ))}
     </div>
   );

@@ -14,10 +14,10 @@ export default class TwitterFeature {
           try {
             const wallet = await Core.wallet({ type: 'ethereum', network: 'goerli' });
             await wallet.connect();
-            const currentAccount = await new Promise((res) =>
+            const account = await new Promise((res) =>
               wallet.sendAndListen('eth_accounts', [], { result: (_, { data }) => res(data[0]) }),
             );
-            this._overlay.send('connectWallet_done', currentAccount);
+            this._overlay.send('connectWallet_done', account);
           } catch (err) {
             this._overlay.send('connectWallet_undone', err);
           }
@@ -40,15 +40,20 @@ export default class TwitterFeature {
             this._overlay.send('isWalletConnected_undone', err);
           }
         },
-        getCurrentEthAccount: async () => {
+        signMessage: async (_: any, payload: any) => {
+          const { account, message } = payload.message;
+
           try {
             const wallet = await Core.wallet({ type: 'ethereum', network: 'goerli' });
-            const currentAccount = await new Promise((res) =>
-              wallet.sendAndListen('eth_accounts', [], { result: (_, { data }) => res(data[0]) }),
+            const hash = await new Promise((resolve, reject) =>
+              wallet.sendAndListen('personal_sign', [account, message], {
+                rejected: () => reject(),
+                result: (_, { data }) => resolve(data),
+              }),
             );
-            this._overlay.send('getCurrentEthAccount_done', currentAccount);
+            this._overlay.send('signMessage_done', hash);
           } catch (err) {
-            this._overlay.send('getCurrentEthAccount_undone', err);
+            this._overlay.send('signMessage_undone', err);
           }
         },
       });

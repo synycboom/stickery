@@ -27,25 +27,8 @@ class Bridge extends GeneralBridge {
     );
   }
 
-  async getCurrentEthAccount(): Promise<string> {
-    return this.call(
-      'getCurrentEthAccount',
-      null,
-      'getCurrentEthAccount_done',
-      'getCurrentEthAccount_undone',
-    );
-  }
-
-  async getTweets(accountId: string): Promise<string[]> {
-    return this.call('getTweets', { accountId }, 'getTweets_done', 'getTweets_undone');
-  }
-
-  async addTweet(tweet: string): Promise<string> {
-    return this.call('addTweet', { tweet }, 'addTweet_done', 'addTweet_undone');
-  }
-
-  async removeTweet(tweet: string): Promise<string> {
-    return this.call('removeTweet', { tweet }, 'removeTweet_done', 'removeTweet_undone');
+  async signMessage(account: string, message: string): Promise<string> {
+    return this.call('signMessage', { account, message }, 'signMessage_done', 'signMessage_undone');
   }
 
   public async call(

@@ -5,25 +5,23 @@ import { requireEnv } from '../utils/env';
 import { ExtendedRequest } from './type';
 
 export const authenticateToken = asyncHandler(async (req: ExtendedRequest, res, next) => {
-  return next();
+  let token = req.cookies['jwt'];
+  if (!token) {
+    const authHeader = req.headers['authorization'];
+    token = authHeader && authHeader.split(' ')[1];
+  }
 
-  // let token = req.cookies['jwt'];
-  // if (!token) {
-  //   const authHeader = req.headers['authorization'];
-  //   token = authHeader && authHeader.split(' ')[1];
-  // }
+  if (!token) {
+    throw new UnauthorizedError();
+  }
 
-  // if (!token) {
-  //   throw new UnauthorizedError();
-  // }
+  try {
+    const user = (await jwt.verify(token, requireEnv('TOKEN_SECRET'))) as any;
 
-  // try {
-  //   const user = (await jwt.verify(token, requireEnv('TOKEN_SECRET'))) as any;
-
-  //   req.publicAddress = user.publicAddress;
-  //   req.userId = user.userId;
-  //   next();
-  // } catch (err) {
-  //   throw new UnauthorizedError();
-  // }
+    req.publicAddress = user.publicAddress;
+    req.userId = user.userId;
+    next();
+  } catch (err) {
+    throw new UnauthorizedError();
+  }
 });

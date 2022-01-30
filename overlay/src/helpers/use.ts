@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { getCategories, getStickers } from '../apis';
-import { categoriesState, stickersState } from '../state';
+import { StickerData } from '../interfaces';
+import { categoriesState } from '../state';
 
 export const useCategories = () => {
   const [categories, setCategories] = useRecoilState(categoriesState);
@@ -16,11 +17,11 @@ export const useCategories = () => {
 };
 
 export const useStickers = (categoryId?: number) => {
-  const [stickers, setStickers] = useRecoilState(stickersState);
+  const [stickers, setStickers] = useState<StickerData[] | null>(null);
 
   useEffect(() => {
     if (categoryId) {
-      getStickers().then((data) => setStickers(data.items));
+      getStickers(categoryId).then((data) => setStickers(data.items));
     }
   }, [categoryId, setStickers]);
 

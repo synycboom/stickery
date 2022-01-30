@@ -7,6 +7,7 @@ import ValidationError from '../errors/validation';
 import { createUser, updateNonce, findUser, getNonce } from '../models/user';
 import { validateSignature, validateTokenAddress } from '../validation';
 import { generateAccessToken } from '../utils/auth';
+import { authenticateToken } from './middleware';
 
 const router = express.Router();
 
@@ -22,19 +23,22 @@ const publicAddressValidator = (publicAddress: string) => {
   return true;
 };
 
-const challengeValidation = checkSchema({
-  publicAddress: {
-    custom: {
-      options: publicAddressValidator
-    }
-  }
-}, ['query']);
+const challengeValidation = checkSchema(
+  {
+    publicAddress: {
+      custom: {
+        options: publicAddressValidator,
+      },
+    },
+  },
+  ['query'],
+);
 
 const loginValidation = checkSchema({
   publicAddress: {
     custom: {
-      options: publicAddressValidator
-    }
+      options: publicAddressValidator,
+    },
   },
   signedChallenge: {
     custom: {
@@ -54,8 +58,8 @@ const loginValidation = checkSchema({
         }
 
         return true;
-      }
-    }
+      },
+    },
   },
 });
 
@@ -75,8 +79,8 @@ router.get(
     res.status(200).json({
       challenge,
     });
-  }
-));
+  }),
+);
 
 router.post(
   '/login',
@@ -92,19 +96,29 @@ router.post(
     const token = generateAccessToken(user.getDataValue('id'), publicAddress);
     await updateNonce(sequelize, publicAddress);
 
-    res.cookie('jwt', token, { httpOnly: true })
-      .status(200)
-      .json({
-        token
-      });
-  }
-));
+    res.cookie('jwt', token, { httpOnly: true }).status(200).json({
+      token,
+    });
+  }),
+);
 
 router.post(
   '/logout',
   asyncHandler(async (req, res) => {
     res.clearCookie('jwt').status(204).end();
-  })
+  }),
+);
+
+router.get(
+  '/check',
+  authenticateToken,
+  asyncHandler(async (req, res) => {
+    res.status(200).json({
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      publicAddress: req.publicAddress,
+    });
+  }),
 );
 
 export default router;
