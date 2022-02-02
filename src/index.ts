@@ -5,6 +5,7 @@ import ICON_IMAGE from './icons/icon.png';
 export default class TwitterFeature {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any,  @typescript-eslint/explicit-module-boundary-types
   @Inject('twitter-adapter.dapplet-base.eth') public adapter: any;
+  @Inject('stickery-adapter.dapplet-base.eth') public stickeryAdapter: any;
   private _overlay: any;
 
   activate(): void {
@@ -58,6 +59,7 @@ export default class TwitterFeature {
         },
       });
     }
+
     Core.onAction(() => this.openOverlay());
 
     const { button } = this.adapter.exports;
@@ -74,6 +76,18 @@ export default class TwitterFeature {
             },
           },
         }),
+    });
+
+    const { dropPoints } = this.stickeryAdapter.exports;
+
+    this.stickeryAdapter.attachConfig({
+      TWITTER_DROP_POINTS: (ctx: any) => (
+        dropPoints({
+          initial: 'DEFAULT',
+          DEFAULT: {
+          },
+        })
+      ),
     });
   }
 

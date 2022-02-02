@@ -7,13 +7,17 @@
   "description": { "$ref": "package.json#/description" },
   "main": { "$ref": "package.json#/main" },
   "icon": "src/icons/icon.png",
-  "contextIds": ["twitter-adapter.dapplet-base.eth"],
+  "contextIds": [
+    "twitter-adapter.dapplet-base.eth",
+    "stickery-adapter.dapplet-base.eth"
+  ],
   "config": {
     "schema": "config/schema.json",
     "default": "config/default.json"
   },
   "dependencies": {
-    "twitter-adapter.dapplet-base.eth": "0.9.0"
+    "twitter-adapter.dapplet-base.eth": "0.9.0",
+    "stickery-adapter.dapplet-base.eth": "0.2.0"
   },
   "overlays": {
     "stickery": "http://localhost:3000/sign-in"
