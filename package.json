@@ -4,7 +4,7 @@
   "description": "A dapplet that puts stickers on posts using the Dapplets Project infrastructure",
   "main": "lib/index.js",
   "scripts": {
-    "start": "concurrently -c \"yellow,blue\" -n \"dapplet,overlay\" \"rollup -w --config rollup.config.js\" \"cd overlay && npm start\"",
+    "start": "concurrently -c \"yellow,blue,magenta,gray\" -n \"dapplet,overlay,server,adapter\" \"rollup -w --config rollup.config.js\" \"cd overlay && npm start\" \"cd server && npm run dev\" \"cd adapter && npm run start\"",
     "build": "rollup --config rollup.config.js",
     "prettify": "npx prettier --write .",
     "lint": "npx eslint ."
