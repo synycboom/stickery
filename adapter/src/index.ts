@@ -1,6 +1,10 @@
 import { IFeature } from '@dapplets/dapplet-extension';
 import { DropPoints } from './drop-points';
 
+type ContextElement = {
+  contextEl: HTMLElement;
+};
+
 type ContextBuilder = {
   [propName: string]: string;
 };
@@ -18,17 +22,18 @@ export default class StickeryTwitterAdapter {
 
   public config = {
     TWITTER_DROP_POINTS: {
-      containerSelector: 'main[role=main]',
-      contextSelector: 'article.css-1dbjc4n',
+      containerSelector: 'div[data-testid=primaryColumn]',
+      contextSelector: 'article[data-testid=tweet]',
       insPoints: {
         TWITTER_DROP_POINTS: {
-          selector: '',
-          insert: 'begin',
+          selector: '', // Use the contextSelector as a context div
+          insert: 'inside',
         },
       },
-      contextBuilder: (el: any): ContextBuilder => {
+      contextBuilder: (el: any): ContextBuilder & ContextElement => {
         return {
-          id: ''
+          id: el.querySelector('a time')?.parentNode?.href?.split('/')?.pop() || /status\/([0-9]*)/gm.exec(document.location.href)?.[1],
+          contextEl: el, // IMPROVEMENT: This might cause memory leakage
         };
       },
     },

@@ -85,6 +85,12 @@ export default class TwitterFeature {
         dropPoints({
           initial: 'DEFAULT',
           DEFAULT: {
+            init: async (ctx, state) => {
+              // TODO:
+            },
+            exec: () => {
+              // TODO:
+            },
           },
         })
       ),
