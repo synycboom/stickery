@@ -10,13 +10,18 @@ $ docker-compose -f docker-compose.db.yaml up
 - Setup create .env file and set the variables
 ```shell
 $ cat .env.example > .env 
+# install dependencies
+$ npm ci
+```
+
+## Load Sample Fixtures (Categories, Stickers)
+```shell
+$ npm run db:fixtures
 ```
 
 ## Development
 - Make sure that node >= 14 has been installed
 ```shell
-# install dependencies
-$ npm ci
 # run development server
 $ npm run dev
 ```
