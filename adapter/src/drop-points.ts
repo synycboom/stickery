@@ -35,7 +35,19 @@ const addStyles = (): void => {
       min-height: 30px;
       height: 100%;
       width: 100%;
-      background: green;
+      background: rgba(76, 153, 129, 0.3);
+      border: 2px solid #4C9981;
+      box-sizing: border-box;
+      border-radius: 50%;
+    }
+
+    .${IMAGE_DROP_POINT_CLASS}.entered {
+      background: rgb(56 143 116 / 0.5);
+    }
+
+    .${IMAGE_DROP_POINT_CLASS}.placed {
+      background: unset;
+      border: unset;
     }
   `;
 
@@ -60,7 +72,7 @@ export class DropPoints {
 
   public static contextInsPoints = {
     TWITTER_DROP_POINTS: 'TWITTER_DROP_POINTS',
-  }
+  };
 
   public mount(): void {
     if (!this.el) {
@@ -73,7 +85,7 @@ export class DropPoints {
       stylesAdded = true;
     }
 
-    return
+    return;
   }
 
   public unmount(): void {
@@ -95,7 +107,7 @@ export class DropPoints {
     const textContainer = mainContainer.childNodes[0];
     const imageContainer = mainContainer.childNodes[1];
 
-    this.textDropPoint= document.createElement('div');
+    this.textDropPoint = document.createElement('div');
     this.textDropPoint.classList.add(TEXT_DROP_POINT_CLASS);
     textContainer.appendChild(this.textDropPoint);
 
@@ -103,17 +115,10 @@ export class DropPoints {
       return;
     }
 
-    this.imageDropPointsContainer = document.createElement('div')
+    this.imageDropPointsContainer = document.createElement('div');
     this.imageDropPointsContainer.classList.add(IMAGE_DROP_POINT_CONTAINER_CLASS);
 
-    const positions = [
-      'TL',
-      'T',
-      'TR',
-      'BL',
-      'B',
-      'BR'
-    ];
+    const positions = ['TL', 'T', 'TR', 'BL', 'B', 'BR'];
 
     for (const position of positions) {
       const imageDropPoint = document.createElement('div');

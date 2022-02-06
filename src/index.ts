@@ -10,7 +10,8 @@ export default class TwitterFeature {
   private initialized = false;
   private draggableArea: HTMLElement = null;
   private draggableItem: HTMLElement = null;
-  private isDraggableItemAppended: boolean = false;
+  private enteredItem: Element = null;
+  private isDraggableItemAppended = false;
 
   activate(): void {
     this.initializeDragAndDrop();
@@ -64,7 +65,9 @@ export default class TwitterFeature {
           }
         },
         mouseDown: (_: any, payload: any) => {
-          const { message: { stickerId, url }} = payload;
+          const {
+            message: { stickerId, url },
+          } = payload;
 
           this.showDraggableArea();
           this.showDraggableItem(url, stickerId);
@@ -93,7 +96,7 @@ export default class TwitterFeature {
     const { dropPoints } = this.stickeryAdapter.exports;
 
     this.stickeryAdapter.attachConfig({
-      TWITTER_DROP_POINTS: (ctx: any) => (
+      TWITTER_DROP_POINTS: (ctx: any) =>
         dropPoints({
           initial: 'DEFAULT',
           DEFAULT: {
@@ -101,8 +104,7 @@ export default class TwitterFeature {
               // TODO:
             },
           },
-        })
-      ),
+        }),
     });
   }
 
@@ -121,7 +123,7 @@ export default class TwitterFeature {
     this.draggableArea.style.height = '100vh';
     this.draggableArea.style.width = `${overylay.offsetWidth}px`;
     this.draggableArea.style.zIndex = zIndex.toString();
-    
+
     document.body.appendChild(this.draggableArea);
   }
 
@@ -145,7 +147,7 @@ export default class TwitterFeature {
     image.style.zIndex = '1';
     image.onload = () => {
       this.draggableItem.removeChild(loading);
-    }
+    };
 
     const zIndex = parseInt(window.getComputedStyle(this.draggableArea).zIndex) + 1;
     this.draggableItem = document.createElement('div');
@@ -177,23 +179,63 @@ export default class TwitterFeature {
         if (this.draggableArea) {
           this.hideDraggableArea();
         }
+
+        if (this.enteredItem) {
+          this.enteredItem.classList.add('placed');
+          this.enteredItem.appendChild(this.draggableItem.firstChild);
+          this.enteredItem = null;
+        }
+
         if (this.draggableItem) {
           this.hideDraggableItem();
         }
       });
 
-      document.body.addEventListener('mousemove', (e) => {
-        if (!this.draggableItem) {
-          return
-        }
-        if (!this.isDraggableItemAppended) {
-          this.isDraggableItemAppended = true;
-          document.body.appendChild(this.draggableItem);
-        }
+      document.body.addEventListener(
+        'mousemove',
+        (e) => {
+          if (!this.draggableItem) {
+            return;
+          }
+          if (!this.isDraggableItemAppended) {
+            this.isDraggableItemAppended = true;
+            document.body.appendChild(this.draggableItem);
+          }
 
-        this.draggableItem.style.left = `${e.clientX}px`;
-        this.draggableItem.style.top = `${e.clientY}px`;
-      }, { passive: true });
+          this.draggableItem.style.left = `${e.clientX}px`;
+          this.draggableItem.style.top = `${e.clientY}px`;
+
+          this.showEnteredItem(e.clientX, e.clientY);
+        },
+        { passive: true },
+      );
+    }
+  }
+
+  showEnteredItem(mousePositionX: number, mousePositionY: number) {
+    this.enteredItem = null;
+
+    const dropableElements = Array.from(
+      document.getElementsByClassName('stickery-image-drop-point'),
+    );
+    const dropableIndex = dropableElements.findIndex((elem) => {
+      const rect = elem.getBoundingClientRect();
+      if (elem.classList.contains('entered')) {
+        elem.classList.remove('entered');
+      }
+      return (
+        mousePositionX >= rect.left &&
+        mousePositionX <= rect.right &&
+        mousePositionY >= rect.top &&
+        mousePositionY <= rect.bottom &&
+        !elem.classList.contains('placed')
+      );
+    });
+
+    if (dropableIndex > -1) {
+      const enteredElement = dropableElements[dropableIndex];
+      enteredElement.classList.add('entered');
+      this.enteredItem = enteredElement;
     }
   }
 }

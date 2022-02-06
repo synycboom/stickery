@@ -1,4 +1,4 @@
-import Image from 'react-graceful-image'
+import Image from 'react-graceful-image';
 import { useCategories, useStickers } from '../helpers/use';
 import { bridge } from '../helpers/bridge';
 
@@ -23,8 +23,8 @@ const EmojiContent = () => {
   );
 };
 
-function randomIntFromInterval(min: number, max: number) { 
-  return Math.floor(Math.random() * (max - min + 1) + min)
+function randomIntFromInterval(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 const StickerList = ({ categoryId }: { categoryId: number }) => {
@@ -40,7 +40,7 @@ const StickerList = ({ categoryId }: { categoryId: number }) => {
           onMouseDown={(e) => {
             bridge.mouseDown(url, id);
             e.preventDefault();
-          }} 
+          }}
         >
           <Image
             className="w-100px h-100px p-4px"
@@ -49,7 +49,7 @@ const StickerList = ({ categoryId }: { categoryId: number }) => {
             retry={{
               count: 20,
               delay: randomIntFromInterval(5, 18),
-              accumulate: 'add'
+              accumulate: 'add',
             }}
             src={url}
           />
