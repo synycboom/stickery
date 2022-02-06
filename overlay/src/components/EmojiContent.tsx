@@ -1,3 +1,4 @@
+import Image from 'react-graceful-image'
 import { useCategories, useStickers } from '../helpers/use';
 import { bridge } from '../helpers/bridge';
 
@@ -22,6 +23,10 @@ const EmojiContent = () => {
   );
 };
 
+function randomIntFromInterval(min: number, max: number) { 
+  return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
 const StickerList = ({ categoryId }: { categoryId: number }) => {
   const stickers = useStickers(categoryId);
 
@@ -30,15 +35,25 @@ const StickerList = ({ categoryId }: { categoryId: number }) => {
   return (
     <>
       {stickers.map(({ id, url }) => (
-        <img
+        <div
           key={id}
-          src={url}
           onMouseDown={(e) => {
             bridge.mouseDown(url, id);
             e.preventDefault();
-          }}
-          className="w-100px h-100px p-4px" alt="sticker"
-        />
+          }} 
+        >
+          <Image
+            className="w-100px h-100px p-4px"
+            alt="sticker"
+            placeholderColor="#747376"
+            retry={{
+              count: 20,
+              delay: randomIntFromInterval(5, 18),
+              accumulate: 'add'
+            }}
+            src={url}
+          />
+        </div>
       ))}
     </>
   );
