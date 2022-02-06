@@ -31,6 +31,10 @@ class Bridge extends GeneralBridge {
     return this.call('signMessage', { account, message }, 'signMessage_done', 'signMessage_undone');
   }
 
+  async mouseDown(url: string, stickerId: number): Promise<boolean> {
+    return this.call('mouseDown', { url, stickerId }, 'mouseDown_done', 'mouseDown_undone');
+  }
+
   public async call(
     method: string,
     args: any,

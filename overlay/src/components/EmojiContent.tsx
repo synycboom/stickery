@@ -1,4 +1,5 @@
 import { useCategories, useStickers } from '../helpers/use';
+import { bridge } from '../helpers/bridge';
 
 const EmojiContent = () => {
   const categories = useCategories();
@@ -29,7 +30,15 @@ const StickerList = ({ categoryId }: { categoryId: number }) => {
   return (
     <>
       {stickers.map(({ id, url }) => (
-        <img key={id} src={url} className="w-100px h-100px p-4px" alt="sticker" />
+        <img
+          key={id}
+          src={url}
+          onMouseDown={(e) => {
+            bridge.mouseDown(url, id);
+            e.preventDefault();
+          }}
+          className="w-100px h-100px p-4px" alt="sticker"
+        />
       ))}
     </>
   );
