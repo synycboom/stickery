@@ -7,8 +7,14 @@ export default class TwitterFeature {
   @Inject('twitter-adapter.dapplet-base.eth') public adapter: any;
   @Inject('stickery-adapter.dapplet-base.eth') public stickeryAdapter: any;
   private _overlay: any;
+  private initialized = false;
+  private draggableArea: HTMLElement = null;
+  private draggableItem: HTMLElement = null;
+  private isDraggableItemAppended: boolean = false;
 
   activate(): void {
+    this.initializeDragAndDrop();
+
     if (!this._overlay) {
       this._overlay = Core.overlay({ name: 'stickery', title: 'Stickery' }).listen({
         connectWallet: async () => {
@@ -57,6 +63,12 @@ export default class TwitterFeature {
             this._overlay.send('signMessage_undone', err);
           }
         },
+        mouseDown: (_: any, payload: any) => {
+          const { message: { stickerId, url }} = payload;
+
+          this.showDraggableArea();
+          this.showDraggableItem(url, stickerId);
+        },
       });
     }
 
@@ -88,9 +100,6 @@ export default class TwitterFeature {
             init: async (ctx, state) => {
               // TODO:
             },
-            exec: () => {
-              // TODO:
-            },
           },
         })
       ),
@@ -99,5 +108,92 @@ export default class TwitterFeature {
 
   async openOverlay(props?: any): Promise<void> {
     this._overlay.send('data', props);
+  }
+
+  showDraggableArea() {
+    const overylay = document.querySelector<HTMLElement>('.dapplets-overlay-frame');
+    const zIndex = parseInt(window.getComputedStyle(overylay).zIndex) + 1;
+
+    this.draggableArea = document.createElement('div');
+    this.draggableArea.style.position = 'fixed';
+    this.draggableArea.style.left = `${overylay.offsetLeft}px`;
+    this.draggableArea.style.top = `${overylay.offsetTop}px`;
+    this.draggableArea.style.height = '100vh';
+    this.draggableArea.style.width = `${overylay.offsetWidth}px`;
+    this.draggableArea.style.zIndex = zIndex.toString();
+    
+    document.body.appendChild(this.draggableArea);
+  }
+
+  hideDraggableArea() {
+    document.body.removeChild(this.draggableArea);
+    this.draggableArea = null;
+  }
+
+  showDraggableItem(url: string, stickerId: string) {
+    const loading = document.createElement('div');
+    loading.style.position = 'absolute';
+    loading.style.left = '50%';
+    loading.style.top = '50%';
+    loading.style.transform = 'translate(-50%, -50%)';
+    loading.innerText = 'Loading...';
+
+    const image = document.createElement('img');
+    image.src = url;
+    image.style.width = '100%';
+    image.style.height = '100%';
+    image.style.zIndex = '1';
+    image.onload = () => {
+      this.draggableItem.removeChild(loading);
+    }
+
+    const zIndex = parseInt(window.getComputedStyle(this.draggableArea).zIndex) + 1;
+    this.draggableItem = document.createElement('div');
+    this.draggableItem.style.position = 'fixed';
+    this.draggableItem.style.zIndex = '2147483647';
+    this.draggableItem.style.transform = 'translate(-50%, -50%)';
+    this.draggableItem.style.height = '100px';
+    this.draggableItem.style.width = '100px';
+    this.draggableItem.style.zIndex = zIndex.toString();
+    this.draggableItem.dataset.stickerId = stickerId;
+    this.draggableItem.appendChild(loading);
+    this.draggableItem.appendChild(image);
+  }
+
+  hideDraggableItem() {
+    if (this.isDraggableItemAppended) {
+      document.body.removeChild(this.draggableItem);
+      this.isDraggableItemAppended = false;
+    }
+
+    this.draggableItem = null;
+  }
+
+  initializeDragAndDrop() {
+    if (!this.initialized) {
+      this.initialized = true;
+
+      document.body.addEventListener('mouseup', (e) => {
+        if (this.draggableArea) {
+          this.hideDraggableArea();
+        }
+        if (this.draggableItem) {
+          this.hideDraggableItem();
+        }
+      });
+
+      document.body.addEventListener('mousemove', (e) => {
+        if (!this.draggableItem) {
+          return
+        }
+        if (!this.isDraggableItemAppended) {
+          this.isDraggableItemAppended = true;
+          document.body.appendChild(this.draggableItem);
+        }
+
+        this.draggableItem.style.left = `${e.clientX}px`;
+        this.draggableItem.style.top = `${e.clientY}px`;
+      }, { passive: true });
+    }
   }
 }
