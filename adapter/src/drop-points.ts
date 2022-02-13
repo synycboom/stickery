@@ -1,6 +1,7 @@
 const REFERENCE_NODE_CLASS = 'stickery-ref-node';
 const TEXT_DROP_POINT_CLASS = 'stickery-text-drop-point';
 const IMAGE_DROP_POINT_CLASS = 'stickery-image-drop-point';
+const DROP_POINT_CLASS = 'stickery-drop-point';
 const IMAGE_DROP_POINT_CONTAINER_CLASS = 'stickery-image-drop-point-container';
 const IMAGE_CLASS = 'stickery-image';
 const IG_IMAGE_POSITIONS = ['TOP_LEFT', 'TOP', 'TOP_RIGHT', 'MIDDLE_LEFT', 'MIDDLE', 'MIDDLE_RIGHT', 'BOTTOM_LEFT', 'BOTTOM', 'BOTTOM_RIGHT'];
@@ -20,7 +21,6 @@ const addStyles = (): void => {
       min-height: 30px;
       height: 100%;
       width: 100%;
-      background: red;
       right: 0;
     }
 
@@ -38,22 +38,25 @@ const addStyles = (): void => {
       min-height: 30px;
       height: 100%;
       width: 100%;
+    }
+
+    .${DROP_POINT_CLASS} {
       background: rgba(76, 153, 129, 0.3);
       border: 2px solid #4C9981;
       box-sizing: border-box;
       border-radius: 50%;
     }
 
-    .${IMAGE_DROP_POINT_CLASS}.entered {
+    .${DROP_POINT_CLASS}.entered {
       background: rgb(56 143 116 / 0.5);
     }
 
-    .${IMAGE_DROP_POINT_CLASS}.placed {
+    .${DROP_POINT_CLASS}.placed {
       background: unset;
       border: unset;
     }
 
-    .${IMAGE_DROP_POINT_CLASS}.placed:hover {
+    .${DROP_POINT_CLASS}.placed:hover {
       cursor: pointer;
     }
 
@@ -147,7 +150,7 @@ export class DropPoints {
       switch (position) {
         case 'CAPTION': {
           this.textDropPoint = document.createElement('div');
-          this.textDropPoint.classList.add(TEXT_DROP_POINT_CLASS);
+          this.textDropPoint.classList.add(TEXT_DROP_POINT_CLASS, DROP_POINT_CLASS);
           this.textDropPoint.dataset.id = id;
           this.textDropPoint.dataset.location = position;
           textContainer.appendChild(this.textDropPoint);
@@ -187,7 +190,7 @@ export class DropPoints {
         }
       }
 
-      imageDropPoint.classList.add(IMAGE_DROP_POINT_CLASS);
+      imageDropPoint.classList.add(IMAGE_DROP_POINT_CLASS, DROP_POINT_CLASS);
       imageDropPoint.dataset.id = id;
       imageDropPoint.dataset.location = position;
       imageDropPoint.addEventListener('click', () => {

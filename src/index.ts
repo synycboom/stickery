@@ -355,7 +355,7 @@ export default class TwitterFeature {
 
   showEnteredItem(mousePositionX: number, mousePositionY: number) {
     const dropableElements = Array.from(
-      document.getElementsByClassName('stickery-image-drop-point'),
+      document.getElementsByClassName('stickery-drop-point'),
     );
     const dropableIndex = dropableElements.findIndex((elem) => {
       const rect = elem.getBoundingClientRect();
