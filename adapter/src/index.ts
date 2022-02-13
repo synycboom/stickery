@@ -46,11 +46,11 @@ export default class StickeryTwitterAdapter {
     this.adapter.configure(this.config);
   }
 
-  public attachConfig(feature: IFeature): void {
-    this.adapter.attachConfig(feature);
+  public attachConfig(feature: IFeature) {
+    return this.adapter.attachConfig(feature);
   }
 
-  public detachConfig(feature: IFeature): void {
-    this.adapter.detachConfig(feature);
+  public detachConfig(feature: IFeature) {
+    return this.adapter.detachConfig(feature);
   }
 }

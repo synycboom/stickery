@@ -4,6 +4,7 @@ import serve from 'rollup-plugin-serve';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
+import { string } from 'rollup-plugin-string';
 
 const showAddress = () => ({
   load: () =>
@@ -28,6 +29,7 @@ export default [
       json(),
       resolve({ browser: true }),
       commonjs(),
+      string({ include: '**/*.css' }),
       image(),
       serve({ port: 3001 }),
       showAddress(),
