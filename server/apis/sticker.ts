@@ -1,5 +1,5 @@
 import express from 'express';
-import { ForeignKeyConstraintError } from 'sequelize';
+import { ForeignKeyConstraintError, Op } from 'sequelize';
 import asyncHandler from 'express-async-handler';
 import { body, validationResult, param } from 'express-validator';
 import sequelize from '../db';
@@ -8,10 +8,15 @@ const router = express.Router();
 
 // TODO: Pagination
 router.get('/', asyncHandler(async (req, res) => {
-  const { categoryId } = req.query;
+  const { categoryId, ids } = req.query;
   const where: Record<string, any> = {};
   if (categoryId) {
     where['categoryId'] = categoryId;
+  }
+  if (ids) {
+    where['id'] = {
+      [Op.in]: ids.toString().split(',')
+    };
   }
 
   const stickers = await sequelize.models.sticker.findAll({

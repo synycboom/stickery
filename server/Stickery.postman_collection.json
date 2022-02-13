@@ -178,7 +178,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/v1/stickers?categoryId=",
+							"raw": "http://localhost:8080/v1/stickers?categoryId=&ids=1,2",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -192,6 +192,10 @@
 								{
 									"key": "categoryId",
 									"value": ""
+								},
+								{
+									"key": "ids",
+									"value": "1,2"
 								}
 							]
 						}
@@ -437,7 +441,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"publicAddress\": \"0x1adDf082FBf70D0ab45c16bD8C1114f2DBbf1435\",\n    \"signedChallenge\": \"0x62ce950f7bf120b01ad9644a5a5706d910f85c7362e817d3095c32787fcf780e3b44545c9c585debd5944aaa8991bf7af3300d19d8ca64d5ad19368dc49bf27c1c\"\n}",
+							"raw": "{\n    \"publicAddress\": \"0x1adDf082FBf70D0ab45c16bD8C1114f2DBbf1435\",\n    \"signedChallenge\": \"0xc1ed81069b9b5bcfeacc30f5c5925451480e2b06765bc667ac7ff68f9d4fc73a7d671de3eadd64cf9da48447003e6b913aebfd7a3aadef2723375ee8a9c6a20f1b\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
