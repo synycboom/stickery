@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "68b92600-45cf-4839-bd26-52bf9405cbd0",
+		"_postman_id": "18800216-3e74-4df7-ab93-15045d3f8d1e",
 		"name": "Stickery",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -298,7 +298,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"position\": {\n        \"number\": 1,\n        \"nftTokenAddress\": \"0xBA12222222228d8Ba445958a75a0704d566BF2C8\", \n        \"nftTokenId\": \"1\",\n        \"spec\": { \"x\": 1 }\n    },\n    \"platform\": \"twitter\",\n    \"foreignId\": \"test\"\n}\n",
+							"raw": "{\n    \"position\": {\n        \"location\": \"BOTTOM\",\n        \"nftTokenAddress\": \"0xBA12222222228d8Ba445958a75a0704d566BF2C8\", \n        \"nftTokenId\": \"1\",\n        \"spec\": { \"x\": 1 }\n    },\n    \"platform\": \"twitter\",\n    \"foreignId\": \"test\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -328,7 +328,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"position\": {\n        \"number\": 1\n    },\n    \"platform\": \"twitter\",\n    \"foreignId\": \"test\"\n}\n",
+							"raw": "{\n    \"position\": {\n        \"location\": \"BOTTOM\"\n    },\n    \"platform\": \"twitter\",\n    \"foreignId\": \"test\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -404,7 +404,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/v1/auth/challenge?publicAddress=0xBa600095ceEFb87EC72C7F3a00cF102A11d721B8",
+							"raw": "http://localhost:8080/v1/auth/challenge?publicAddress=0x1adDf082FBf70D0ab45c16bD8C1114f2DBbf1435",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -423,7 +423,7 @@
 								},
 								{
 									"key": "publicAddress",
-									"value": "0xBa600095ceEFb87EC72C7F3a00cF102A11d721B8"
+									"value": "0x1adDf082FBf70D0ab45c16bD8C1114f2DBbf1435"
 								}
 							]
 						}
@@ -437,7 +437,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"publicAddress\": \"0xBa600095ceEFb87EC72C7F3a00cF102A11d721B8\",\n    \"signedChallenge\": \"0x10311c0d7ff0e6bb8641dc5b4c1e8fd2a51c5468d66c5205f4d0bcfb3fc443e738cac895fc22e1527382a5eb3d4a835375ed5d4fac2083e0ec6a704e70af46f11b\"\n}",
+							"raw": "{\n    \"publicAddress\": \"0x1adDf082FBf70D0ab45c16bD8C1114f2DBbf1435\",\n    \"signedChallenge\": \"0x62ce950f7bf120b01ad9644a5a5706d910f85c7362e817d3095c32787fcf780e3b44545c9c585debd5944aaa8991bf7af3300d19d8ca64d5ad19368dc49bf27c1c\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
