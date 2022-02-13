@@ -2,6 +2,7 @@ import express from 'express';
 import ValidationError from './validation';
 import NotFoundError from './notfound';
 import UnauthorizedError from './unauthorized';
+import NoContentError from './nocontent';
 
 const errorHandler: express.ErrorRequestHandler = (err, req, res, next) => {
   if (err instanceof ValidationError) {
@@ -12,6 +13,9 @@ const errorHandler: express.ErrorRequestHandler = (err, req, res, next) => {
   }
   if (err instanceof UnauthorizedError) {
     return res.status(401).send('Unauthorized');
+  }
+  if (err instanceof NoContentError) {
+    return res.status(204).end();
   }
 
   console.error(err);

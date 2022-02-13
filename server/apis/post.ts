@@ -4,7 +4,7 @@ import { validationResult, checkSchema } from 'express-validator';
 import isHexadecimal from 'validator/lib/isHexadecimal';
 import sequelize from '../db';
 import { getOrCreatePost, getPost } from '../models/post';
-import { updatePosition, removePosition } from '../models/position';
+import { updatePosition, removePosition, VALID_TWITTER_POSITIONS, VALID_IG_POSITIONS } from '../models/position';
 import { isValidStickerId } from '../models/sticker';
 import ValidationError from '../errors/validation';
 import { ExtendedRequest } from './type';
@@ -81,21 +81,13 @@ const stickValidator = checkSchema({
           throw new Error('position must be defined');
         }
 
-        const number = parseInt(position.number);
-        if (isNaN(number)) {
-          throw new Error('position.number must be a number');
-        }
-
+        const location = position.location;
         const { platform } = req.body;
-        if (platform === 'twitter') {
-          if (number < 0 || number > 7) {
-            throw new Error('position.number must be a 1-7');
-          }
+        if (platform === 'twitter' && !VALID_TWITTER_POSITIONS.includes(location)) {
+          throw new Error('position.location is not valid');
         }
-        if (platform === 'instagram') {
-          if (number < 0 || number > 11) {
-            throw new Error('position.number must be a 1-7');
-          }
+        if (platform === 'instagram' && !VALID_IG_POSITIONS.includes(location)) {
+          throw new Error('position.location is not valid');
         }
 
         const { stickerId, nftTokenAddress, nftTokenId } = position;
@@ -130,7 +122,7 @@ router.post(
     const [post] = await getOrCreatePost(sequelize, platform, foreignId);
     await updatePosition(sequelize, {
       postId: post.getDataValue('id'),
-      number: position.number,
+      location: position.location,
       spec: position.spec,
       stickerId: position.stickerId,
       nftTokenAddress: position.nftTokenAddress,
@@ -142,9 +134,52 @@ router.post(
   })
 );
 
+const removeStickValidator = checkSchema({
+  foreignId: {
+    isString: {
+      errorMessage: 'foreignId must be a string referencing to the post in other platform',
+    },
+    notEmpty: {
+      options: {
+        ignore_whitespace: true,
+      },
+      errorMessage: 'foreignId must not be empty',
+    }
+  },
+  platform: {
+    exists: {
+      errorMessage: 'platform must be defined',
+    },
+    isIn: {
+      options: ['twitter', 'instagram'],
+      errorMessage: 'platform must be one of "twitter" or "instagram"',
+    }
+  },
+  position: {
+    custom: {
+      options: async (position, { req }) => {
+        if (!position) {
+          throw new Error('position must be defined');
+        }
+
+        const location = position.location;
+        const { platform } = req.body;
+        if (platform === 'twitter' && !VALID_TWITTER_POSITIONS.includes(location)) {
+          throw new Error('position.location is not valid');
+        }
+        if (platform === 'instagram' && !VALID_IG_POSITIONS.includes(location)) {
+          throw new Error('position.location is not valid');
+        }
+
+        return true;
+      }
+    },
+  },
+});
+
 router.post(
   '/remove',
-  stickValidator,
+  removeStickValidator,
   asyncHandler(async (req: ExtendedRequest, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -159,7 +194,7 @@ router.post(
 
     await removePosition(sequelize, {
       postId: post.getDataValue('id'),
-      number: position.number,
+      location: position.location,
       userId: req.userId!,
     });
 

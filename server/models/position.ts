@@ -1,6 +1,33 @@
 import { Sequelize, DataTypes } from 'sequelize';
-import NotFoundError from '../errors/notfound';
+import NoContentError from '../errors/nocontent';
 import UnauthorizedError from '../errors/unauthorized';
+
+export const VALID_TWITTER_POSITIONS = [
+  'CAPTION',
+  'TOP_LEFT',
+  'TOP',
+  'TOP_RIGHT',
+  'MIDDLE_LEFT',
+  'MIDDLE',
+  'MIDDLE_RIGHT',
+  'BOTTOM_LEFT',
+  'BOTTOM',
+  'BOTTOM_RIGHT'
+];
+
+export const VALID_IG_POSITIONS = [
+  'ABOVE_POST',
+  'TOP_LEFT',
+  'TOP',
+  'TOP_RIGHT',
+  'MIDDLE_LEFT',
+  'MIDDLE',
+  'MIDDLE_RIGHT',
+  'BOTTOM_LEFT',
+  'BOTTOM',
+  'BOTTOM_RIGHT',
+  'CAPTION',
+];
 
 export default function (sequelize: Sequelize) {
   return sequelize.define('position', {
@@ -9,8 +36,10 @@ export default function (sequelize: Sequelize) {
       autoIncrement: true,
       primaryKey: true
     },
-    number: {
-      type: DataTypes.INTEGER,
+    location: {
+      type: DataTypes.ENUM(
+        ... new Set([...VALID_TWITTER_POSITIONS, ...VALID_IG_POSITIONS]),
+      ),
       allowNull: false,
     },
     stickerId: {
@@ -34,19 +63,19 @@ export default function (sequelize: Sequelize) {
       allowNull: false,
     },
   },
-  {
+    {
       indexes: [
         {
           unique: true,
-          fields: ['postId', 'number'],
+          fields: ['postId', 'location'],
         }
       ]
-  });
+    });
 };
 
 type UpdatePositionParams = {
   postId: number,
-  number: number,
+  location: string,
   stickerId?: number,
   nftTokenAddress?: string,
   nftTokenId?: string,
@@ -64,7 +93,7 @@ export async function updatePosition(
     const [position] = await sequelize.models.position.findOrCreate({
       where: {
         postId: params.postId,
-        number: params.number,
+        location: params.location,
       },
       defaults: {
         userId: params.userId,
@@ -82,7 +111,7 @@ export async function updatePosition(
 
     await position.save({ transaction: tx });
     await tx.commit();
-  } catch(err) {
+  } catch (err) {
     await tx.rollback();
 
     throw err;
@@ -91,7 +120,7 @@ export async function updatePosition(
 
 type RemovePositionParams = {
   postId: number,
-  number: number,
+  location: string,
   userId: number,
 }
 
@@ -99,11 +128,11 @@ export async function removePosition(sequelize: Sequelize, params: RemovePositio
   const position = await sequelize.models.position.findOne({
     where: {
       postId: params.postId,
-      number: params.number,
+      location: params.location,
     },
   });
   if (!position) {
-    throw new NotFoundError();
+    throw new NoContentError();
   }
   if (position.getDataValue('userId') !== params.userId) {
     throw new UnauthorizedError();
