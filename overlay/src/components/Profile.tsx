@@ -32,6 +32,7 @@ const Profile = () => {
               onClick={async () => {
                 await bridge.disconnectWallet();
                 window.localStorage.removeItem('token');
+                await bridge.logOut();
                 setAccount('');
                 navigate('/sign-in');
               }}

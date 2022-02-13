@@ -12,14 +12,17 @@ function SignInPage() {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    checkAuthen()
-      .then(({ publicAddress }) => {
-        setAccount(publicAddress);
-        navigate('/');
-      })
-      .catch(() => {
-        setLoading(false);
-      });
+    async function run () {
+      const { publicAddress } = await checkAuthen();
+
+      await bridge.logIn();
+      setAccount(publicAddress);
+      navigate('/');
+    }
+
+    run().finally(() => {
+      setLoading(false);
+    });
   }, []);
 
   useEffect(() => {
@@ -46,6 +49,7 @@ function SignInPage() {
                   const hash = await bridge.signMessage(account, challenge);
                   await login(account, hash);
                   setAccount(account);
+                  await bridge.logIn();
                 } catch {
                   setLoading(false);
                 }
