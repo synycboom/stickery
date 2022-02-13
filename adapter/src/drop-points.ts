@@ -45,6 +45,11 @@ const addStyles = (): void => {
       border: 2px solid #4C9981;
       box-sizing: border-box;
       border-radius: 50%;
+      visibility: visible;
+    }
+
+    .${DROP_POINT_CLASS}.hidden {
+      visibility: hidden;
     }
 
     .${DROP_POINT_CLASS}.entered {
@@ -91,9 +96,7 @@ export interface IDropPointsState {
 export class DropPoints {
   public el: HTMLElement;
   public state: IDropPointsState;
-  public textDropPoint: HTMLElement;
-  public imageDropPointsContainer: HTMLElement;
-  public imageDropPoints: HTMLElement[] = [];
+  private imageDropPoints: HTMLElement[] = [];
 
   public static contextInsPoints = {
     TWITTER_DROP_POINTS: 'TWITTER_DROP_POINTS',
@@ -110,6 +113,7 @@ export class DropPoints {
       stylesAdded = true;
     }
 
+    this._hideOverlapped();
     this._renderStickedItems();
 
     return;
@@ -131,29 +135,35 @@ export class DropPoints {
     const { contextEl, id } = this.state.ctx;
     const buttonGroupNode = contextEl.querySelector('.css-1dbjc4n > div[role=group]:nth-child(1)');
     const mainContainer = buttonGroupNode.parentElement.parentElement;
-    const textContainer = mainContainer.childNodes[0];
-    const imageContainer = mainContainer.childNodes[1];
+    let textContainer = mainContainer.childNodes[0];
+    let imageContainer = mainContainer.childNodes[1];
 
-    if (imageContainer.childElementCount === 0) {
-      return;
+    if (mainContainer.childNodes.length === 4) {
+      const isInPostDetailPage = !!mainContainer.childNodes[0].querySelector('a');
+      if (isInPostDetailPage) {
+        textContainer = mainContainer.childNodes[1];
+        imageContainer = mainContainer.childNodes[2];
+      }
     }
 
-    this.imageDropPointsContainer = document.createElement('div');
-    this.imageDropPointsContainer.classList.add(IMAGE_DROP_POINT_CONTAINER_CLASS);
-
     const positions = TWITTER_IMAGE_POSITIONS;
+    const imageDropPointsContainer = document.createElement('div');
+
+    this.imageDropPoints = [];
 
     for (const position of positions) {
       const imageDropPoint = document.createElement('div');
 
-
       switch (position) {
         case 'CAPTION': {
-          this.textDropPoint = document.createElement('div');
-          this.textDropPoint.classList.add(TEXT_DROP_POINT_CLASS, DROP_POINT_CLASS);
-          this.textDropPoint.dataset.id = id;
-          this.textDropPoint.dataset.location = position;
-          textContainer.appendChild(this.textDropPoint);
+          if (textContainer.querySelector('[lang]')) {
+            const textDropPoint = document.createElement('div');
+            textDropPoint.classList.add(TEXT_DROP_POINT_CLASS, DROP_POINT_CLASS);
+            textDropPoint.dataset.id = id;
+            textDropPoint.dataset.location = position;
+            textContainer.appendChild(textDropPoint);
+          }
+
           continue;
         }
         case 'TOP_LEFT': {
@@ -200,12 +210,47 @@ export class DropPoints {
       });
 
       this.imageDropPoints.push(imageDropPoint);
-      this.imageDropPointsContainer.appendChild(imageDropPoint);
+      imageDropPointsContainer.classList.add(IMAGE_DROP_POINT_CONTAINER_CLASS);
+      imageDropPointsContainer.appendChild(imageDropPoint);
     }
 
-    imageContainer.appendChild(this.imageDropPointsContainer);
+    // Check if there is an image in a post
+    if (imageContainer.childElementCount > 0) {
+      imageContainer.appendChild(imageDropPointsContainer);
+    }
 
     return;
+  }
+
+  private _hideOverlapped() {
+    const visibleDropPoints: HTMLElement[] = [];
+    for (let dropPoint of this.imageDropPoints) {
+      if (visibleDropPoints.length === 0) {
+        visibleDropPoints.push(dropPoint);
+        continue;
+      }
+
+      for (let visibleDropPoint of visibleDropPoints) {
+        if (visibleDropPoint.isSameNode(dropPoint)) {
+          continue;
+        }
+
+        const rect1 = visibleDropPoint.getBoundingClientRect();
+        const rect2 = dropPoint.getBoundingClientRect();
+        const overlap = !(
+          rect1.right < rect2.left || 
+          rect1.left > rect2.right || 
+          rect1.bottom < rect2.top || 
+          rect1.top > rect2.bottom
+        );
+        
+        if (!overlap) {
+          visibleDropPoints.push(dropPoint);
+        } else {
+          dropPoint.classList.add('hidden');
+        }
+      }
+    }
   }
 
   private _renderStickedItems() {
@@ -214,10 +259,14 @@ export class DropPoints {
 
     for (let location of TWITTER_IMAGE_POSITIONS) {
       const dropPoint = contextEl.querySelector(`[data-location="${location}"]`);
+      if (!dropPoint) {
+        continue;
+      }
+
       if (!stickedItems[location]) {
         dropPoint.innerHTML = '';
         dropPoint.classList.remove('placed');
-        continue
+        continue;
       }
 
       const { imageUrl } = stickedItems[location];
