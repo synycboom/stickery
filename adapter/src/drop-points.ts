@@ -3,6 +3,7 @@ const TEXT_DROP_POINT_CLASS = 'stickery-text-drop-point';
 const IMAGE_DROP_POINT_CLASS = 'stickery-image-drop-point';
 const DROP_POINT_CLASS = 'stickery-drop-point';
 const IMAGE_DROP_POINT_CONTAINER_CLASS = 'stickery-image-drop-point-container';
+const DROP_POINT_VISIBLE_CLASS = 'stickery-droppoints-visible';
 const IMAGE_CLASS = 'stickery-image';
 const IG_IMAGE_POSITIONS = ['TOP_LEFT', 'TOP', 'TOP_RIGHT', 'MIDDLE_LEFT', 'MIDDLE', 'MIDDLE_RIGHT', 'BOTTOM_LEFT', 'BOTTOM', 'BOTTOM_RIGHT'];
 const TWITTER_IMAGE_POSITIONS = ['CAPTION', 'TOP_LEFT', 'TOP', 'TOP_RIGHT', 'BOTTOM_LEFT', 'BOTTOM', 'BOTTOM_RIGHT'];
@@ -45,11 +46,15 @@ const addStyles = (): void => {
       border: 2px solid #4C9981;
       box-sizing: border-box;
       border-radius: 50%;
+      visibility: hidden;
+    }
+
+    body.${DROP_POINT_VISIBLE_CLASS} .${DROP_POINT_CLASS} {
       visibility: visible;
     }
 
     .${DROP_POINT_CLASS}.hidden {
-      visibility: hidden;
+      display: none;
     }
 
     .${DROP_POINT_CLASS}.entered {
@@ -59,6 +64,7 @@ const addStyles = (): void => {
     .${DROP_POINT_CLASS}.placed {
       background: unset;
       border: unset;
+      visibility: visible;
     }
 
     .${DROP_POINT_CLASS}.placed:hover {
@@ -83,6 +89,7 @@ type StickValue = {
 
 export interface IDropPointsState {
   stickedItemsMap: Record<string, Record<string, StickValue>>
+  areDroppointsVisible: boolean,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   exec: (ctx: any, me: IDropPointsState) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -113,6 +120,7 @@ export class DropPoints {
       stylesAdded = true;
     }
 
+    this._showAllDroppoints();
     this._hideOverlapped();
     this._renderStickedItems();
 
@@ -161,6 +169,12 @@ export class DropPoints {
             textDropPoint.classList.add(TEXT_DROP_POINT_CLASS, DROP_POINT_CLASS);
             textDropPoint.dataset.id = id;
             textDropPoint.dataset.location = position;
+            textDropPoint.addEventListener('click', (e) => {
+              if (textDropPoint.classList.contains('placed')) {
+                e.stopPropagation();
+                this.state.delete?.(this.state.ctx, position);
+              }
+            }, { capture: true });
             textContainer.appendChild(textDropPoint);
           }
 
@@ -203,11 +217,12 @@ export class DropPoints {
       imageDropPoint.classList.add(IMAGE_DROP_POINT_CLASS, DROP_POINT_CLASS);
       imageDropPoint.dataset.id = id;
       imageDropPoint.dataset.location = position;
-      imageDropPoint.addEventListener('click', () => {
+      imageDropPoint.addEventListener('click', (e) => {
         if (imageDropPoint.classList.contains('placed')) {
+          e.stopPropagation();
           this.state.delete?.(this.state.ctx, position);
         }
-      });
+      }, { capture: true });
 
       this.imageDropPoints.push(imageDropPoint);
       imageDropPointsContainer.classList.add(IMAGE_DROP_POINT_CONTAINER_CLASS);
@@ -220,6 +235,14 @@ export class DropPoints {
     }
 
     return;
+  }
+
+  private _showAllDroppoints() {
+    if (this.state.areDroppointsVisible && !document.body.classList.contains(DROP_POINT_VISIBLE_CLASS)) {
+      document.body.classList.add(DROP_POINT_VISIBLE_CLASS);
+    } else if (!this.state.areDroppointsVisible && document.body.classList.contains(DROP_POINT_VISIBLE_CLASS)) {
+      document.body.classList.remove(DROP_POINT_VISIBLE_CLASS);
+    }
   }
 
   private _hideOverlapped() {

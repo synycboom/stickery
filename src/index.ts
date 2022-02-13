@@ -77,7 +77,8 @@ export default class TwitterFeature {
         id: DROP_POINTS_ID,
         initial: 'DEFAULT',
         DEFAULT: {
-          stickedItemsMap: this.stickedItemsMap,
+          stickedItemsMap: {},
+          areDroppointsVisible: false,
           init: async (ctx) => {
             const postId = ctx.id;
             this.ctxMap[postId] = ctx;
@@ -203,6 +204,8 @@ export default class TwitterFeature {
     this.draggableItem.style.zIndex = zIndex.toString();
     this.draggableItem.appendChild(loading);
     this.draggableItem.appendChild(image);
+
+    this.setDroppointsVisibility(true);
   }
 
   hideDraggableItem() {
@@ -213,6 +216,7 @@ export default class TwitterFeature {
 
     this.draggableItem = null;
     this.draggingInfo = null;
+    this.setDroppointsVisibility(false);
   }
 
   initializeOverlay() {
@@ -435,6 +439,15 @@ export default class TwitterFeature {
       const widgetState = this.$(this.ctxMap[postId], DROP_POINTS_ID);
       if (widgetState) {
         widgetState.stickedItemsMap = this.stickedItemsMap;
+      }
+    }
+  }
+
+  setDroppointsVisibility(visible: boolean) {
+    for (let postId of Object.keys(this.ctxMap)) {
+      const widgetState = this.$(this.ctxMap[postId], DROP_POINTS_ID);
+      if (widgetState) {
+        widgetState.areDroppointsVisible = visible;
       }
     }
   }
