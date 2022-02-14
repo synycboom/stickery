@@ -2,16 +2,16 @@ import tingle from 'tingle.js';
 import toastr from 'toastr';
 import tingleCSS from 'tingle.js/dist/tingle.min.css';
 import toastrCSS from 'toastr/build/toastr.min.css';
-import { } from '@dapplets/dapplet-extension';
+import {} from '@dapplets/dapplet-extension';
 import ICON_IMAGE from './icons/icon.png';
 
 const DROP_POINTS_ID = 'dropPoints';
 
 type StickValue = {
-  stickerId: string,
-  nftTokenAddress: string,
-  nftTokenId: string,
-  imageUrl: string,
+  stickerId: string;
+  nftTokenAddress: string;
+  nftTokenId: string;
+  imageUrl: string;
 };
 
 type DraggingInfo = {
@@ -21,7 +21,7 @@ type DraggingInfo = {
   nftTokenAddress: string;
   nftTokenId: string;
   imageUrl: string;
-}
+};
 
 const tingleStyl = document.createElement('style');
 const toastrStyle = document.createElement('style');
@@ -73,34 +73,35 @@ export default class TwitterFeature {
 
     const { dropPoints } = this.stickeryAdapter.exports;
     const { $ } = this.stickeryAdapter.attachConfig({
-      TWITTER_DROP_POINTS: (ctx: any) => dropPoints({
-        id: DROP_POINTS_ID,
-        initial: 'DEFAULT',
-        DEFAULT: {
-          stickedItemsMap: {},
-          areDroppointsVisible: false,
-          init: async (ctx) => {
-            const postId = ctx.id;
-            this.ctxMap[postId] = ctx;
-            await this.sendGettingPosts([postId]);
-          },
-          delete: async (ctx, location) => {
-            const modal = new tingle.modal({
-              footer: true,
-              stickyFooter: false,
-              closeMethods: ['overlay', 'button', 'escape'],
-              closeLabel: "Close",
-            });
+      TWITTER_DROP_POINTS: (ctx: any) =>
+        dropPoints({
+          id: DROP_POINTS_ID,
+          initial: 'DEFAULT',
+          DEFAULT: {
+            stickedItemsMap: {},
+            areDroppointsVisible: false,
+            init: async (ctx) => {
+              const postId = ctx.id;
+              this.ctxMap[postId] = ctx;
+              await this.sendGettingPosts([postId]);
+            },
+            delete: async (ctx, location) => {
+              const modal = new tingle.modal({
+                footer: true,
+                stickyFooter: false,
+                closeMethods: ['overlay', 'button', 'escape'],
+                closeLabel: 'Close',
+              });
 
-            modal.setContent('<h1>Are you sure you want to remove a sticker</h1>');
-            modal.addFooterBtn('Remove', 'tingle-btn tingle-btn--danger', () => {
-              this.sendRemovingStickedItem(ctx.id, location);
-              modal.close();
-            });
-            modal.open();
-          }
-        },
-      }),
+              modal.setContent('<h1>Are you sure you want to remove a sticker</h1>');
+              modal.addFooterBtn('Remove', 'tingle-btn tingle-btn--danger', () => {
+                this.sendRemovingStickedItem(ctx.id, location);
+                modal.close();
+              });
+              modal.open();
+            },
+          },
+        }),
     });
 
     this.$ = $;
@@ -358,9 +359,7 @@ export default class TwitterFeature {
   }
 
   showEnteredItem(mousePositionX: number, mousePositionY: number) {
-    const dropableElements = Array.from(
-      document.getElementsByClassName('stickery-drop-point'),
-    );
+    const dropableElements = Array.from(document.getElementsByClassName('stickery-drop-point'));
     const dropableIndex = dropableElements.findIndex((elem) => {
       const rect = elem.getBoundingClientRect();
       if (elem.classList.contains('entered')) {
@@ -371,8 +370,7 @@ export default class TwitterFeature {
         mousePositionX >= rect.left &&
         mousePositionX <= rect.right &&
         mousePositionY >= rect.top &&
-        mousePositionY <= rect.bottom &&
-        !elem.classList.contains('placed')
+        mousePositionY <= rect.bottom
       );
     });
 
@@ -395,7 +393,7 @@ export default class TwitterFeature {
       imageUrl,
       stickerId,
       nftTokenAddress,
-      nftTokenId
+      nftTokenId,
     } = this.draggingInfo;
 
     const newStickedItem = {
@@ -405,13 +403,41 @@ export default class TwitterFeature {
           nftTokenAddress,
           nftTokenId,
           imageUrl,
-        }
-      }
-    }
+        },
+      },
+    };
 
-    this.attachStickedItemsMap(newStickedItem);
-    this.refreshWidgetStickedItems();
-    this.sendStickingItem(stickerId, location, postId);
+    const isItemExist = this.stickedItemsMap[postId][location];
+
+    const confirm = () => {
+      this.attachStickedItemsMap(newStickedItem);
+      this.refreshWidgetStickedItems();
+      this.sendStickingItem(stickerId, location, postId);
+    };
+    if (isItemExist) {
+      this.showReplaceModal(confirm);
+    } else {
+      confirm();
+    }
+  }
+
+  showReplaceModal(confirm) {
+    const modal = new tingle.modal({
+      footer: true,
+      stickyFooter: false,
+      closeMethods: ['overlay', 'button', 'escape'],
+      closeLabel: 'Close',
+    });
+
+    modal.setContent('<h1>Are you sure you want to replace a sticker</h1>');
+    modal.addFooterBtn('Place', 'tingle-btn tingle-btn--primary', () => {
+      confirm();
+      modal.close();
+    });
+    modal.addFooterBtn('Cancel', 'tingle-btn', () => {
+      modal.close();
+    });
+    modal.open();
   }
 
   attachStickedItemsMap(item: Record<string, Record<string, StickValue>>) {
@@ -430,7 +456,7 @@ export default class TwitterFeature {
 
   removeStickedItem(postId: string, location: string) {
     if (this.stickedItemsMap[postId]) {
-      delete this.stickedItemsMap[postId][location]; 
+      delete this.stickedItemsMap[postId][location];
     }
   }
 
