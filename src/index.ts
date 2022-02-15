@@ -98,6 +98,9 @@ export default class TwitterFeature {
                 this.sendRemovingStickedItem(ctx.id, location);
                 modal.close();
               });
+              modal.addFooterBtn('Cancel', 'tingle-btn', () => {
+                modal.close();
+              });
               modal.open();
             },
           },
@@ -407,7 +410,7 @@ export default class TwitterFeature {
       },
     };
 
-    const isItemExist = this.stickedItemsMap[postId][location];
+    const isItemExist = this.stickedItemsMap[postId] && this.stickedItemsMap[postId][location];
 
     const confirm = () => {
       this.attachStickedItemsMap(newStickedItem);
