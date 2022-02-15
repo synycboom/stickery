@@ -382,11 +382,14 @@ export default class TwitterFeature {
       enteredElement.classList.add('entered');
       this.draggingInfo.postId = enteredElement.dataset.id;
       this.draggingInfo.location = enteredElement.dataset.location;
+    } else {
+      this.draggingInfo.postId = '';
+      this.draggingInfo.location = '';
     }
   }
 
   async stickItem() {
-    if (!this.draggingInfo) {
+    if (!this.draggingInfo || !this.draggingInfo.postId || !this.draggingInfo.location) {
       return;
     }
 

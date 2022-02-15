@@ -5,8 +5,26 @@ const DROP_POINT_CLASS = 'stickery-drop-point';
 const IMAGE_DROP_POINT_CONTAINER_CLASS = 'stickery-image-drop-point-container';
 const DROP_POINT_VISIBLE_CLASS = 'stickery-droppoints-visible';
 const IMAGE_CLASS = 'stickery-image';
-const IG_IMAGE_POSITIONS = ['TOP_LEFT', 'TOP', 'TOP_RIGHT', 'MIDDLE_LEFT', 'MIDDLE', 'MIDDLE_RIGHT', 'BOTTOM_LEFT', 'BOTTOM', 'BOTTOM_RIGHT'];
-const TWITTER_IMAGE_POSITIONS = ['CAPTION', 'TOP_LEFT', 'TOP', 'TOP_RIGHT', 'BOTTOM_LEFT', 'BOTTOM', 'BOTTOM_RIGHT'];
+const IG_IMAGE_POSITIONS = [
+  'TOP_LEFT',
+  'TOP',
+  'TOP_RIGHT',
+  'MIDDLE_LEFT',
+  'MIDDLE',
+  'MIDDLE_RIGHT',
+  'BOTTOM_LEFT',
+  'BOTTOM',
+  'BOTTOM_RIGHT',
+];
+const TWITTER_IMAGE_POSITIONS = [
+  'CAPTION',
+  'TOP_LEFT',
+  'TOP',
+  'TOP_RIGHT',
+  'BOTTOM_LEFT',
+  'BOTTOM',
+  'BOTTOM_RIGHT',
+];
 
 let stylesAdded = false;
 
@@ -21,8 +39,9 @@ const addStyles = (): void => {
       min-width: 30px;
       min-height: 30px;
       height: 100%;
-      width: 100%;
+      width: auto;
       right: 0;
+      aspect-ratio: 1;
     }
 
     .${IMAGE_DROP_POINT_CONTAINER_CLASS} {
@@ -44,6 +63,8 @@ const addStyles = (): void => {
     .${DROP_POINT_CLASS} {
       background: rgba(76, 153, 129, 0.3);
       border: 2px solid #4C9981;
+      max-width: 100px;
+      max-height: 100px;
       box-sizing: border-box;
       border-radius: 50%;
       visibility: hidden;
@@ -81,15 +102,15 @@ const addStyles = (): void => {
 };
 
 type StickValue = {
-  stickerId: string,
-  nftTokenAddress: string,
-  nftTokenId: string,
-  imageUrl: string,
+  stickerId: string;
+  nftTokenAddress: string;
+  nftTokenId: string;
+  imageUrl: string;
 };
 
 export interface IDropPointsState {
-  stickedItemsMap: Record<string, Record<string, StickValue>>
-  areDroppointsVisible: boolean,
+  stickedItemsMap: Record<string, Record<string, StickValue>>;
+  areDroppointsVisible: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   exec: (ctx: any, me: IDropPointsState) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -169,12 +190,16 @@ export class DropPoints {
             textDropPoint.classList.add(TEXT_DROP_POINT_CLASS, DROP_POINT_CLASS);
             textDropPoint.dataset.id = id;
             textDropPoint.dataset.location = position;
-            textDropPoint.addEventListener('click', (e) => {
-              if (textDropPoint.classList.contains('placed')) {
-                e.stopPropagation();
-                this.state.delete?.(this.state.ctx, position);
-              }
-            }, { capture: true });
+            textDropPoint.addEventListener(
+              'click',
+              (e) => {
+                if (textDropPoint.classList.contains('placed')) {
+                  e.stopPropagation();
+                  this.state.delete?.(this.state.ctx, position);
+                }
+              },
+              { capture: true },
+            );
             textContainer.appendChild(textDropPoint);
           }
 
@@ -217,12 +242,16 @@ export class DropPoints {
       imageDropPoint.classList.add(IMAGE_DROP_POINT_CLASS, DROP_POINT_CLASS);
       imageDropPoint.dataset.id = id;
       imageDropPoint.dataset.location = position;
-      imageDropPoint.addEventListener('click', (e) => {
-        if (imageDropPoint.classList.contains('placed')) {
-          e.stopPropagation();
-          this.state.delete?.(this.state.ctx, position);
-        }
-      }, { capture: true });
+      imageDropPoint.addEventListener(
+        'click',
+        (e) => {
+          if (imageDropPoint.classList.contains('placed')) {
+            e.stopPropagation();
+            this.state.delete?.(this.state.ctx, position);
+          }
+        },
+        { capture: true },
+      );
 
       this.imageDropPoints.push(imageDropPoint);
       imageDropPointsContainer.classList.add(IMAGE_DROP_POINT_CONTAINER_CLASS);
@@ -238,9 +267,15 @@ export class DropPoints {
   }
 
   private _showAllDroppoints() {
-    if (this.state.areDroppointsVisible && !document.body.classList.contains(DROP_POINT_VISIBLE_CLASS)) {
+    if (
+      this.state.areDroppointsVisible &&
+      !document.body.classList.contains(DROP_POINT_VISIBLE_CLASS)
+    ) {
       document.body.classList.add(DROP_POINT_VISIBLE_CLASS);
-    } else if (!this.state.areDroppointsVisible && document.body.classList.contains(DROP_POINT_VISIBLE_CLASS)) {
+    } else if (
+      !this.state.areDroppointsVisible &&
+      document.body.classList.contains(DROP_POINT_VISIBLE_CLASS)
+    ) {
       document.body.classList.remove(DROP_POINT_VISIBLE_CLASS);
     }
   }
@@ -261,12 +296,12 @@ export class DropPoints {
         const rect1 = visibleDropPoint.getBoundingClientRect();
         const rect2 = dropPoint.getBoundingClientRect();
         const overlap = !(
-          rect1.right < rect2.left || 
-          rect1.left > rect2.right || 
-          rect1.bottom < rect2.top || 
+          rect1.right < rect2.left ||
+          rect1.left > rect2.right ||
+          rect1.bottom < rect2.top ||
           rect1.top > rect2.bottom
         );
-        
+
         if (!overlap) {
           visibleDropPoints.push(dropPoint);
         } else {
