@@ -1,7 +1,7 @@
 {
   "name": "stickery-adapter.dapplet-base.eth",
-  "version": "0.2.0",
-  "description": "Stickery Twitter Adapter",
+  "version": "0.1.0",
+  "description": "Stickery Adapter",
   "main": "lib/index.js",
   "scripts": {
     "start": "rollup -w --config rollup.config.js",

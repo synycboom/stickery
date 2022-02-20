@@ -21,6 +21,22 @@ export default class StickeryTwitterAdapter {
   });
 
   public config = {
+    INSTAGRAM_DROP_POINTS: {
+      containerSelector: 'main > section',
+      contextSelector: 'article[role="presentation"]',
+      insPoints: {
+        INSTAGRAM_DROP_POINTS: {
+          selector: '', // Use the contextSelector as a context div
+          insert: 'inside',
+        },
+      },
+      contextBuilder: (el: any): ContextBuilder & ContextElement => {
+        return {
+          id: el.querySelector('div.eo2As a.c-Yi7')?.getAttribute('href').split('/')[2],
+          contextEl: el, // IMPROVEMENT: This might cause memory leakage
+        };
+      },
+    },
     TWITTER_DROP_POINTS: {
       containerSelector: 'div[data-testid=primaryColumn]',
       contextSelector: 'article[data-testid=tweet]',

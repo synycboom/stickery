@@ -1,11 +1,13 @@
 const REFERENCE_NODE_CLASS = 'stickery-ref-node';
-const TEXT_DROP_POINT_CLASS = 'stickery-text-drop-point';
+const ABOVE_POST_DROP_POINT_CLASS = 'stickery-above-post-drop-point';
+const CAPTION_DROP_POINT_CLASS = 'stickery-caption-drop-point';
 const IMAGE_DROP_POINT_CLASS = 'stickery-image-drop-point';
 const DROP_POINT_CLASS = 'stickery-drop-point';
 const IMAGE_DROP_POINT_CONTAINER_CLASS = 'stickery-image-drop-point-container';
 const DROP_POINT_VISIBLE_CLASS = 'stickery-droppoints-visible';
 const IMAGE_CLASS = 'stickery-image';
-const IG_IMAGE_POSITIONS = [
+const INSTAGRAM_DROPPABLE_POSITIONS = [
+  'ABOVE_POST',
   'TOP_LEFT',
   'TOP',
   'TOP_RIGHT',
@@ -15,8 +17,9 @@ const IG_IMAGE_POSITIONS = [
   'BOTTOM_LEFT',
   'BOTTOM',
   'BOTTOM_RIGHT',
+  'CAPTION',
 ];
-const TWITTER_IMAGE_POSITIONS = [
+const TWITTER_DROPPABLE_POSITIONS = [
   'CAPTION',
   'TOP_LEFT',
   'TOP',
@@ -32,7 +35,7 @@ const addStyles = (): void => {
   const styleTag: HTMLStyleElement = document.createElement('style');
 
   styleTag.innerHTML = `
-    .${TEXT_DROP_POINT_CLASS} {
+    .${ABOVE_POST_DROP_POINT_CLASS} {
       position: absolute;
       max-width: 70px;
       max-height: 70px;
@@ -44,13 +47,44 @@ const addStyles = (): void => {
       aspect-ratio: 1;
     }
 
+    .${ABOVE_POST_DROP_POINT_CLASS}.instagram {
+      margin-right: 40px;
+    }
+
+    .${CAPTION_DROP_POINT_CLASS} {
+      position: absolute;
+      max-width: 70px;
+      max-height: 70px;
+      min-width: 30px;
+      min-height: 30px;
+      height: 100%;
+      width: auto;
+      right: 0;
+      aspect-ratio: 1;
+    }
+
+    .${CAPTION_DROP_POINT_CLASS}.twitter {
+      margin-right: 25px;
+    }
+
+    .${CAPTION_DROP_POINT_CLASS}.instagram {
+      margin-right: 40px;
+    }
+
     .${IMAGE_DROP_POINT_CONTAINER_CLASS} {
       position: absolute;
       height: 80%;
-      width: 90%;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
+    }
+
+    .${IMAGE_DROP_POINT_CONTAINER_CLASS}.twitter {
+      width: calc(100% - 50px);
+    }
+
+    .${IMAGE_DROP_POINT_CONTAINER_CLASS}.instagram {
+      width: calc(100% - 80px);
     }
 
     .${IMAGE_DROP_POINT_CLASS} {
@@ -61,6 +95,56 @@ const addStyles = (): void => {
       min-height: 30px;
       height: 100%;
       width: 100%;
+    }
+
+    .${IMAGE_DROP_POINT_CLASS}.top-left {
+      left: 0;
+      top: 0;
+    }
+
+    .${IMAGE_DROP_POINT_CLASS}.top {
+      left: 50%;
+      top: 0;
+      transform: translate(-50%, 0%);
+    }
+
+    .${IMAGE_DROP_POINT_CLASS}.top-right {
+      top: 0;
+      right: 0;
+    }
+
+    .${IMAGE_DROP_POINT_CLASS}.middle-left {
+      left: 0;
+      top: 50%;
+      transform: translate(0%, -50%);
+    }
+
+    .${IMAGE_DROP_POINT_CLASS}.middle {
+      left: 50%;
+      bottom: 50%;
+      transform: translate(-50%, 50%);
+    }
+
+    .${IMAGE_DROP_POINT_CLASS}.middle-right {
+      right: 0;
+      top: 50%;
+      transform: translate(0%, -50%);
+    }
+
+    .${IMAGE_DROP_POINT_CLASS}.bottom-left {
+      left: 0;
+      bottom: 0;
+    }
+
+    .${IMAGE_DROP_POINT_CLASS}.bottom {
+      left: 50%;
+      bottom: 0;
+      transform: translate(-50%, 0%);
+    }
+
+    .${IMAGE_DROP_POINT_CLASS}.bottom-right {
+      right: 0;
+      bottom: 0;
     }
 
     .${DROP_POINT_CLASS} {
@@ -113,6 +197,17 @@ type StickValue = {
   imageUrl: string;
 };
 
+type InstagramContainer = {
+  abovePostContainer: HTMLElement;
+  imageContainer: HTMLElement;
+  captionContainer: HTMLElement;
+}
+
+type TwitterContainer = {
+  captionContainer: HTMLElement;
+  imageContainer: HTMLElement;
+}
+
 export interface IDropPointsState {
   stickedItemsMap: Record<string, Record<string, StickValue>>;
   areDroppointsVisible: boolean;
@@ -133,6 +228,7 @@ export class DropPoints {
 
   public static contextInsPoints = {
     TWITTER_DROP_POINTS: 'TWITTER_DROP_POINTS',
+    INSTAGRAM_DROP_POINTS: 'INSTAGRAM_DROP_POINTS',
   };
 
   public mount(): void {
@@ -173,89 +269,165 @@ export class DropPoints {
     return;
   }
 
-  private _createDropPoints() {
-    // TODO: implement this code for IG
-    const { contextEl, id } = this.state.ctx;
-    const buttonGroupNode = contextEl.querySelector('.css-1dbjc4n > div[role=group]:nth-child(1)');
-    const mainContainer = buttonGroupNode.parentElement.parentElement;
-    let textContainer = mainContainer.childNodes[0];
-    let imageContainer = mainContainer.childNodes[1];
+  private _getPlatform(): 'twitter' | 'instagram' {
+    return window.location.hostname.includes('twitter') ? 'twitter' : 'instagram';
+  }
 
-    if (mainContainer.childNodes[3] && mainContainer.childNodes[3].innerText === 'Promoted') return;
+  private _getDroppablePositions(): string[] {
+    const platform = this._getPlatform();
+    if (platform === 'twitter') {
+      return TWITTER_DROPPABLE_POSITIONS;
+    }
+    if (platform === 'instagram') {
+      return INSTAGRAM_DROPPABLE_POSITIONS;
+    }
 
-    if (mainContainer.childNodes.length === 4) {
-      const isInPostDetailPage = !!mainContainer.childNodes[0].querySelector('a');
-      if (isInPostDetailPage) {
-        textContainer = mainContainer.childNodes[1];
-        imageContainer = mainContainer.childNodes[2];
+    return [];
+  }
+
+  private _getContainer(): TwitterContainer | InstagramContainer | null {
+    const { contextEl } = this.state.ctx;
+    const platform = this._getPlatform();
+    if (platform === 'twitter') {
+      const buttonGroupNode = contextEl.querySelector('.css-1dbjc4n > div[role=group]:nth-child(1)');
+      const mainContainer = buttonGroupNode.parentElement.parentElement;
+      let captionContainer = mainContainer.childNodes[0];
+      let imageContainer = mainContainer.childNodes[1];
+
+      if (mainContainer.childNodes[3] && mainContainer.childNodes[3].innerText === 'Promoted') {
+        return null;
+      }
+
+      if (mainContainer.childNodes.length === 4) {
+        const isInPostDetailPage = !!mainContainer.childNodes[0].querySelector('a');
+        if (isInPostDetailPage) {
+          captionContainer = mainContainer.childNodes[1];
+          imageContainer = mainContainer.childNodes[2];
+        }
+      }
+
+      if (!captionContainer?.querySelector('[lang]')) {
+        captionContainer = null;
+      }
+
+      return {
+        captionContainer,
+        imageContainer,
+      }
+    } 
+
+    if (platform === 'instagram') {
+      const header = contextEl.querySelector('header');
+      const mainContainer = header.parentElement.parentElement.parentElement;
+
+      return {
+        abovePostContainer: mainContainer.childNodes[0],
+        imageContainer: mainContainer.childNodes[1],
+        captionContainer: mainContainer.childNodes[2],
       }
     }
 
-    const positions = TWITTER_IMAGE_POSITIONS;
+    return null;
+  }
+
+  private _appendTextDropPoint(container: HTMLElement, id: string, position: string, classes: string[]) {
+    const dropPoint = document.createElement('div');
+    dropPoint.classList.add(...classes);
+    dropPoint.dataset.id = id;
+    dropPoint.dataset.location = position;
+    dropPoint.addEventListener(
+      'click',
+      (e) => {
+        if (dropPoint.classList.contains('placed')) {
+          e.stopPropagation();
+          this.state.delete?.(this.state.ctx, position);
+        }
+      },
+      { capture: true },
+    );
+
+    container.appendChild(dropPoint);
+  }
+
+  private _createDropPoints() {
+    const { id } = this.state.ctx;
+    const container = this._getContainer();
+    const platform = this._getPlatform();
+    if (!container) {
+      return;
+    }
+
+    const positions = this._getDroppablePositions();
     const imageDropPointsContainer = document.createElement('div');
-
     this.imageDropPoints = [];
-
     for (const position of positions) {
       const imageDropPoint = document.createElement('div');
+      let positionClass = '';
 
       switch (position) {
-        case 'CAPTION': {
-          if (textContainer.querySelector('[lang]')) {
-            const textDropPoint = document.createElement('div');
-            textDropPoint.classList.add(TEXT_DROP_POINT_CLASS, DROP_POINT_CLASS);
-            textDropPoint.dataset.id = id;
-            textDropPoint.dataset.location = position;
-            textDropPoint.addEventListener(
-              'click',
-              (e) => {
-                if (textDropPoint.classList.contains('placed')) {
-                  e.stopPropagation();
-                  this.state.delete?.(this.state.ctx, position);
-                }
-              },
-              { capture: true },
+        case 'ABOVE_POST': {
+          if ('abovePostContainer' in container && container.abovePostContainer) {
+            this._appendTextDropPoint(
+              container.abovePostContainer,
+              id,
+              position,
+              [ABOVE_POST_DROP_POINT_CLASS, DROP_POINT_CLASS, platform],
             );
-            textContainer.appendChild(textDropPoint);
+          }
+
+          continue;
+        }
+        case 'CAPTION': {
+          if (container.captionContainer) {
+            this._appendTextDropPoint(
+              container.captionContainer,
+              id,
+              position,
+              [CAPTION_DROP_POINT_CLASS, DROP_POINT_CLASS, platform],
+            );
           }
 
           continue;
         }
         case 'TOP_LEFT': {
-          imageDropPoint.style.left = '0';
-          imageDropPoint.style.top = '0';
+          positionClass = 'top-left';
           break;
         }
         case 'TOP': {
-          imageDropPoint.style.left = '50%';
-          imageDropPoint.style.top = '0';
-          imageDropPoint.style.transform = 'translate(-50%, 0%)';
+          positionClass = 'top';
           break;
         }
         case 'TOP_RIGHT': {
-          imageDropPoint.style.right = '0';
-          imageDropPoint.style.top = '0';
+          positionClass = 'top-right';
+          break;
+        }
+        case 'MIDDLE_LEFT': {
+          positionClass = 'middle-left';
+          break;
+        }
+        case 'MIDDLE': {
+          positionClass = 'middle';
+          break;
+        }
+        case 'MIDDLE_RIGHT': {
+          positionClass = 'middle-right';
           break;
         }
         case 'BOTTOM_LEFT': {
-          imageDropPoint.style.left = '0';
-          imageDropPoint.style.bottom = '0';
+          positionClass = 'bottom-left';
           break;
         }
         case 'BOTTOM': {
-          imageDropPoint.style.left = '50%';
-          imageDropPoint.style.bottom = '0';
-          imageDropPoint.style.transform = 'translate(-50%, 0%)';
+          positionClass = 'bottom';
           break;
         }
         case 'BOTTOM_RIGHT': {
-          imageDropPoint.style.right = '0';
-          imageDropPoint.style.bottom = '0';
+          positionClass = 'bottom-right';
           break;
         }
       }
 
-      imageDropPoint.classList.add(IMAGE_DROP_POINT_CLASS, DROP_POINT_CLASS);
+      imageDropPoint.classList.add(IMAGE_DROP_POINT_CLASS, DROP_POINT_CLASS, positionClass);
       imageDropPoint.dataset.id = id;
       imageDropPoint.dataset.location = position;
       imageDropPoint.addEventListener(
@@ -270,13 +442,13 @@ export class DropPoints {
       );
 
       this.imageDropPoints.push(imageDropPoint);
-      imageDropPointsContainer.classList.add(IMAGE_DROP_POINT_CONTAINER_CLASS);
+      imageDropPointsContainer.classList.add(IMAGE_DROP_POINT_CONTAINER_CLASS, platform);
       imageDropPointsContainer.appendChild(imageDropPoint);
     }
 
     // Check if there is an image in a post
-    if (imageContainer.childElementCount > 0) {
-      imageContainer.appendChild(imageDropPointsContainer);
+    if (container.imageContainer.childElementCount > 0) {
+      container.imageContainer.appendChild(imageDropPointsContainer);
     }
 
     return;
@@ -330,8 +502,9 @@ export class DropPoints {
   private _renderStickedItems() {
     const stickedItems = this.state.stickedItemsMap[this.state.ctx.id] || {};
     const { contextEl } = this.state.ctx;
+    const positions = this._getDroppablePositions();
 
-    for (let location of TWITTER_IMAGE_POSITIONS) {
+    for (let location of positions) {
       const dropPoint = contextEl.querySelector(`[data-location="${location}"]`);
       if (!dropPoint) {
         continue;
