@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "ts-node-dev ./index.ts",
     "start": "tsc && node ./lib/index.js",
+    "migrate:up": "node scripts/migrate up",
+    "migrate:down": "node scripts/migrate down",
+    "migrate:create": "node scripts/migrate create",
     "db:fixtures": "tsc && node ./dist/scripts/fixture.js"
   },
   "author": "",
@@ -34,6 +37,7 @@
     "mysql2": "^2.3.3",
     "sequelize": "^6.14.1",
     "sqlite3": "^5.0.2",
+    "umzug": "^3.0.0",
     "validator": "^13.7.0",
     "winston": "^3.6.0"
   }

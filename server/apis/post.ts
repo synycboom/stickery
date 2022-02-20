@@ -40,9 +40,9 @@ router.get(
       };
     }
 
-    let posts = await sequelize.models.post.findAll({
+    let posts = await sequelize.models.posts.findAll({
       where,
-      include: { model: sequelize.models.position, as: 'positions' },
+      include: { model: sequelize.models.positions, as: 'positions' },
     });
 
     posts = posts.map((item) => item.toJSON());

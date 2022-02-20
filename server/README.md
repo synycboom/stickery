@@ -14,6 +14,18 @@ $ cat .env.example > .env
 $ npm ci
 ```
 
+## Migration
+```shell
+# to run with options
+$ npm run migrate:up -- --step 1
+
+# to run all migrations
+$ npm run migrate:up
+
+# to create migration scripts
+$ npm run migrate:create -- --name file-name
+```
+
 ## Load Sample Fixtures (Categories, Stickers)
 ```shell
 $ npm run db:fixtures

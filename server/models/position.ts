@@ -29,48 +29,48 @@ export const VALID_IG_POSITIONS = [
   'CAPTION',
 ];
 
-export default function (sequelize: Sequelize) {
-  return sequelize.define('position', {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
-    },
-    location: {
-      type: DataTypes.ENUM(
-        ... new Set([...VALID_TWITTER_POSITIONS, ...VALID_IG_POSITIONS]),
-      ),
-      allowNull: false,
-    },
-    stickerId: {
-      type: DataTypes.INTEGER,
-    },
-    nftTokenAddress: {
-      type: DataTypes.STRING,
-    },
-    nftTokenId: {
-      type: DataTypes.TEXT,
-    },
-    postId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    spec: {
-      type: DataTypes.JSON,
-    },
-    userId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
+export const schema = {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
   },
-    {
-      indexes: [
-        {
-          unique: true,
-          fields: ['postId', 'location'],
-        }
-      ]
-    });
+  location: {
+    type: DataTypes.ENUM(
+      ... new Set([...VALID_TWITTER_POSITIONS, ...VALID_IG_POSITIONS]),
+    ),
+    allowNull: false,
+  },
+  stickerId: {
+    type: DataTypes.INTEGER,
+  },
+  nftTokenAddress: {
+    type: DataTypes.STRING,
+  },
+  nftTokenId: {
+    type: DataTypes.TEXT,
+  },
+  postId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  spec: {
+    type: DataTypes.JSON,
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+  },
+};
+
+export default function (sequelize: Sequelize) {
+  return sequelize.define('positions', schema);
 };
 
 type UpdatePositionParams = {
@@ -90,7 +90,7 @@ export async function updatePosition(
   const tx = await sequelize.transaction();
 
   try {
-    const [position] = await sequelize.models.position.findOrCreate({
+    const [position] = await sequelize.models.positions.findOrCreate({
       where: {
         postId: params.postId,
         location: params.location,
@@ -125,7 +125,7 @@ type RemovePositionParams = {
 }
 
 export async function removePosition(sequelize: Sequelize, params: RemovePositionParams) {
-  const position = await sequelize.models.position.findOne({
+  const position = await sequelize.models.positions.findOne({
     where: {
       postId: params.postId,
       location: params.location,

@@ -7,7 +7,7 @@ import ValidationError from '../errors/validation';
 const router = express.Router();
 
 router.get('/', asyncHandler(async (_, res) => {
-  const categories = await sequelize.models.category.findAll();
+  const categories = await sequelize.models.categories.findAll();
 
   res.status(200).json({
     items: categories,
@@ -16,7 +16,7 @@ router.get('/', asyncHandler(async (_, res) => {
 
 router.get('/:id', asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const category = await sequelize.models.category.findOne({
+  const category = await sequelize.models.categories.findOne({
     where: { id },
   });
   if (!category) {
@@ -42,7 +42,7 @@ router.post(
       throw new ValidationError(errors.array());
     }
 
-    const category = await sequelize.models.category.create({
+    const category = await sequelize.models.categories.create({
       name: req.body.name,
     });
 
@@ -68,7 +68,7 @@ router.patch(
       throw new ValidationError(errors.array());
     }
 
-    const [updated] = await sequelize.models.category.update({
+    const [updated] = await sequelize.models.categories.update({
       name: req.body.name,
     }, {
       where: {
@@ -90,7 +90,7 @@ router.delete(
     .isNumeric()
     .withMessage('id must be an integer'),
   asyncHandler(async (req, res) => {
-    await sequelize.models.category.destroy({
+    await sequelize.models.categories.destroy({
       where: {
         id: req.params!.id,
       }

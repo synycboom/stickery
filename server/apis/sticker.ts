@@ -19,7 +19,7 @@ router.get('/', asyncHandler(async (req, res) => {
     };
   }
 
-  const stickers = await sequelize.models.sticker.findAll({
+  const stickers = await sequelize.models.stickers.findAll({
     where,
   });
 
@@ -30,7 +30,7 @@ router.get('/', asyncHandler(async (req, res) => {
 
 router.get('/:id', asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const sticker = await sequelize.models.sticker.findOne({
+  const sticker = await sequelize.models.stickers.findOne({
     where: { id },
   });
   if (!sticker) {
@@ -62,7 +62,7 @@ router.post(
 
     try {
       const { url, categoryId } = req.body;
-      const sticker = await sequelize.models.sticker.create({
+      const sticker = await sequelize.models.stickers.create({
         url,
         categoryId,
       });
@@ -111,7 +111,7 @@ router.patch(
 
     try {
       const { url, categoryId } = req.body;
-      const [updated] = await sequelize.models.sticker.update({
+      const [updated] = await sequelize.models.stickers.update({
         url, categoryId,
       }, {
         where: {
@@ -149,7 +149,7 @@ router.delete(
     .isNumeric()
     .withMessage('id must be an integer'),
   asyncHandler(async (req, res) => {
-    await sequelize.models.sticker.destroy({
+    await sequelize.models.stickers.destroy({
       where: {
         id: req.params!.id,
       }
