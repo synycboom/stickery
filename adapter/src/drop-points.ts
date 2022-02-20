@@ -46,14 +46,17 @@ const addStyles = (): void => {
 
     .${IMAGE_DROP_POINT_CONTAINER_CLASS} {
       position: absolute;
-      height: 100%;
-      width: 100%;
+      height: 80%;
+      width: 90%;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
     }
 
     .${IMAGE_DROP_POINT_CLASS} {
       position: absolute;
-      max-width: 100px;
-      max-height: 100px;
+      max-width: 50px;
+      max-height: 50px;
       min-width: 30px;
       min-height: 30px;
       height: 100%;
@@ -63,8 +66,6 @@ const addStyles = (): void => {
     .${DROP_POINT_CLASS} {
       background: rgba(76, 153, 129, 0.3);
       border: 2px solid #4C9981;
-      max-width: 100px;
-      max-height: 100px;
       box-sizing: border-box;
       border-radius: 50%;
       visibility: hidden;
@@ -93,8 +94,12 @@ const addStyles = (): void => {
     }
 
     .${IMAGE_CLASS} {
-      width: 100%;
-      height: 100%;
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
     }
   `;
 
@@ -149,6 +154,7 @@ export class DropPoints {
   }
 
   public unmount(): void {
+    console.log('unmount');
     this.el && this.el.remove();
   }
 
