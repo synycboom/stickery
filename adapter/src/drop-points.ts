@@ -154,8 +154,16 @@ export class DropPoints {
   }
 
   public unmount(): void {
-    console.log('unmount');
     this.el && this.el.remove();
+    const { contextEl } = this.state.ctx;
+    const elements = [
+      ...Array.from<HTMLElement>(contextEl.querySelectorAll(`.${DROP_POINT_CLASS}`) || []),
+      ...Array.from<HTMLElement>(contextEl.querySelectorAll(`.${IMAGE_DROP_POINT_CONTAINER_CLASS}`) || []),
+    ];
+
+    for (let element of elements) {
+      element.remove();
+    }
   }
 
   private _createElement() {
