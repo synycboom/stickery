@@ -69,6 +69,7 @@ const addStyles = (): void => {
 
     .${CAPTION_DROP_POINT_CLASS}.instagram {
       margin-right: 40px;
+      top: 40px;
     }
 
     .${IMAGE_DROP_POINT_CONTAINER_CLASS} {
