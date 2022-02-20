@@ -2,7 +2,7 @@ import tingle from 'tingle.js';
 import toastr from 'toastr';
 import tingleCSS from 'tingle.js/dist/tingle.min.css';
 import toastrCSS from 'toastr/build/toastr.min.css';
-import {} from '@dapplets/dapplet-extension';
+import { } from '@dapplets/dapplet-extension';
 import ICON_IMAGE from './icons/icon.png';
 
 const DROP_POINTS_ID = 'dropPoints';
@@ -30,8 +30,17 @@ const indexStyle = document.createElement('style');
 tingleStyl.innerHTML = tingleCSS;
 toastrStyle.innerHTML = toastrCSS;
 indexStyle.innerHTML = `
+  .tingle-header-text {
+    font-size: 1.5em;
+    font-weight: bold;
+  }
+
   .tingle-btn {
     border-radius: 5px;
+  }
+
+  .tingle-modal-box__footer {
+    display: block;
   }
 
   .tingle-modal {
@@ -49,9 +58,10 @@ document.head.appendChild(toastrStyle);
 document.head.appendChild(indexStyle);
 
 @Injectable
-export default class TwitterFeature {
+export default class StickeryFeature {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any,  @typescript-eslint/explicit-module-boundary-types
   @Inject('twitter-adapter.dapplet-base.eth') public adapter: any;
+  @Inject('instagram-adapter.dapplet-base.eth') public instagramAdapter: any;
   @Inject('stickery-adapter.dapplet-base.eth') public stickeryAdapter: any;
   private _overlay: any;
   private initialized = false;
@@ -66,16 +76,34 @@ export default class TwitterFeature {
   private ctxMap: Record<string, any> = {};
 
   activate(): void {
+    const platform = this.getPlatform();
     this.initializeDragAndDrop();
     this.initializeOverlay();
 
     Core.onAction(() => this.sendOpeningOverlay());
 
-    const { button } = this.adapter.exports;
+    if (platform === 'twitter') {
+      const { button } = this.adapter.exports;
 
-    this.adapter.attachConfig({
-      POST: (ctx: any) =>
-        button({
+      this.adapter.attachConfig({
+        POST: (ctx: any) =>
+          button({
+            initial: 'DEFAULT',
+            DEFAULT: {
+              label: 'Stickery',
+              img: ICON_IMAGE,
+              exec: () => {
+                this.sendOpeningOverlay(ctx);
+              },
+            },
+          }),
+      });
+    }
+
+    if (platform === 'instagram') {
+      const { button } = this.instagramAdapter.exports;
+      this.instagramAdapter.attachConfig({
+        POST: (ctx: any) => button({
           initial: 'DEFAULT',
           DEFAULT: {
             label: 'Stickery',
@@ -83,44 +111,46 @@ export default class TwitterFeature {
             exec: () => {
               this.sendOpeningOverlay(ctx);
             },
-          },
+          }
         }),
-    });
+      });
+    }
 
+    const dropPointOptions = {
+      id: DROP_POINTS_ID,
+      initial: 'DEFAULT',
+      DEFAULT: {
+        stickedItemsMap: {},
+        areDroppointsVisible: false,
+        init: async (ctx) => {
+          const postId = ctx.id;
+          this.ctxMap[postId] = ctx;
+          await this.sendGettingPosts([postId]);
+        },
+        delete: async (ctx, location) => {
+          const modal = new tingle.modal({
+            footer: true,
+            stickyFooter: false,
+            closeMethods: ['overlay', 'button', 'escape'],
+            closeLabel: 'Close',
+          });
+
+          modal.setContent('<h2 class="tingle-header-text">Are you sure you want to remove a sticker?</h2>');
+          modal.addFooterBtn('Remove', 'tingle-btn tingle-btn--danger tingle-btn--pull-right', () => {
+            this.sendRemovingStickedItem(ctx.id, location);
+            modal.close();
+          });
+          modal.addFooterBtn('Cancel', 'tingle-btn tingle-btn--pull-right', () => {
+            modal.close();
+          });
+          modal.open();
+        },
+      },
+    }
     const { dropPoints } = this.stickeryAdapter.exports;
     const { $ } = this.stickeryAdapter.attachConfig({
-      TWITTER_DROP_POINTS: (ctx: any) =>
-        dropPoints({
-          id: DROP_POINTS_ID,
-          initial: 'DEFAULT',
-          DEFAULT: {
-            stickedItemsMap: {},
-            areDroppointsVisible: false,
-            init: async (ctx) => {
-              const postId = ctx.id;
-              this.ctxMap[postId] = ctx;
-              await this.sendGettingPosts([postId]);
-            },
-            delete: async (ctx, location) => {
-              const modal = new tingle.modal({
-                footer: true,
-                stickyFooter: false,
-                closeMethods: ['overlay', 'button', 'escape'],
-                closeLabel: 'Close',
-              });
-
-              modal.setContent('<h2>Are you sure you want to remove a sticker?</h2>');
-              modal.addFooterBtn('Remove', 'tingle-btn tingle-btn--danger tingle-btn--pull-right', () => {
-                this.sendRemovingStickedItem(ctx.id, location);
-                modal.close();
-              });
-              modal.addFooterBtn('Cancel', 'tingle-btn tingle-btn--pull-right', () => {
-                modal.close();
-              });
-              modal.open();
-            },
-          },
-        }),
+      INSTAGRAM_DROP_POINTS: (ctx: any) => dropPoints(dropPointOptions),
+      TWITTER_DROP_POINTS: (ctx: any) => dropPoints(dropPointOptions),
     });
 
     this.$ = $;
@@ -164,7 +194,7 @@ export default class TwitterFeature {
     });
   }
 
-  getPlatform(): string {
+  getPlatform(): 'twitter' | 'instagram' {
     return window.location.hostname.includes('twitter') ? 'twitter' : 'instagram';
   }
 
@@ -441,7 +471,7 @@ export default class TwitterFeature {
       closeLabel: 'Close',
     });
 
-    modal.setContent('<h2>Are you sure you want to replace a sticker?</h2>');
+    modal.setContent('<h2 class="tingle-header-text">Are you sure you want to replace a sticker?</h2>');
     modal.addFooterBtn('Place', 'tingle-btn tingle-btn--primary tingle-btn--pull-right', () => {
       confirm();
       modal.close();

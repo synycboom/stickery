@@ -9,6 +9,7 @@
   "icon": "src/icons/icon.png",
   "contextIds": [
     "twitter-adapter.dapplet-base.eth",
+    "instagram-adapter.dapplet-base.eth",
     "stickery-adapter.dapplet-base.eth"
   ],
   "config": {
@@ -17,7 +18,8 @@
   },
   "dependencies": {
     "twitter-adapter.dapplet-base.eth": "0.9.0",
-    "stickery-adapter.dapplet-base.eth": "0.2.0"
+    "instagram-adapter.dapplet-base.eth": "0.4.4",
+    "stickery-adapter.dapplet-base.eth": "0.1.0"
   },
   "overlays": {
     "stickery": "http://localhost:3000/sign-in"
