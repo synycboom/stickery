@@ -29,7 +29,7 @@ export default [
       json(),
       resolve({ browser: true }),
       commonjs(),
-      string({ include: '**/*.css' }),
+      string({ include: ['**/*.css'] }),
       image(),
       serve({ port: 3001 }),
       showAddress(),

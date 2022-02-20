@@ -25,12 +25,28 @@ type DraggingInfo = {
 
 const tingleStyl = document.createElement('style');
 const toastrStyle = document.createElement('style');
+const indexStyle = document.createElement('style');
 
 tingleStyl.innerHTML = tingleCSS;
 toastrStyle.innerHTML = toastrCSS;
+indexStyle.innerHTML = `
+  .tingle-btn {
+    border-radius: 5px;
+  }
+
+  .tingle-modal {
+    background: rgb(0 0 0 / 0%);
+    font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .tingle-modal-box {
+    max-width: 600px;
+  }
+`;
 
 document.head.appendChild(tingleStyl);
 document.head.appendChild(toastrStyle);
+document.head.appendChild(indexStyle);
 
 @Injectable
 export default class TwitterFeature {
@@ -93,12 +109,12 @@ export default class TwitterFeature {
                 closeLabel: 'Close',
               });
 
-              modal.setContent('<h1>Are you sure you want to remove a sticker</h1>');
-              modal.addFooterBtn('Remove', 'tingle-btn tingle-btn--danger', () => {
+              modal.setContent('<h2>Are you sure you want to remove a sticker?</h2>');
+              modal.addFooterBtn('Remove', 'tingle-btn tingle-btn--danger tingle-btn--pull-right', () => {
                 this.sendRemovingStickedItem(ctx.id, location);
                 modal.close();
               });
-              modal.addFooterBtn('Cancel', 'tingle-btn', () => {
+              modal.addFooterBtn('Cancel', 'tingle-btn tingle-btn--pull-right', () => {
                 modal.close();
               });
               modal.open();
@@ -423,12 +439,12 @@ export default class TwitterFeature {
       closeLabel: 'Close',
     });
 
-    modal.setContent('<h1>Are you sure you want to replace a sticker</h1>');
-    modal.addFooterBtn('Place', 'tingle-btn tingle-btn--primary', () => {
+    modal.setContent('<h2>Are you sure you want to replace a sticker?</h2>');
+    modal.addFooterBtn('Place', 'tingle-btn tingle-btn--primary tingle-btn--pull-right', () => {
       confirm();
       modal.close();
     });
-    modal.addFooterBtn('Cancel', 'tingle-btn', () => {
+    modal.addFooterBtn('Cancel', 'tingle-btn tingle-btn--pull-right', () => {
       modal.close();
     });
     modal.open();
