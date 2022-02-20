@@ -167,6 +167,8 @@ export class DropPoints {
     let textContainer = mainContainer.childNodes[0];
     let imageContainer = mainContainer.childNodes[1];
 
+    if (mainContainer.childNodes[3] && mainContainer.childNodes[3].innerText === 'Promoted') return;
+
     if (mainContainer.childNodes.length === 4) {
       const isInPostDetailPage = !!mainContainer.childNodes[0].querySelector('a');
       if (isInPostDetailPage) {
