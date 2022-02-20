@@ -34,8 +34,8 @@ const addStyles = (): void => {
   styleTag.innerHTML = `
     .${TEXT_DROP_POINT_CLASS} {
       position: absolute;
-      max-width: 100px;
-      max-height: 100px;
+      max-width: 70px;
+      max-height: 70px;
       min-width: 30px;
       min-height: 30px;
       height: 100%;
@@ -55,8 +55,8 @@ const addStyles = (): void => {
 
     .${IMAGE_DROP_POINT_CLASS} {
       position: absolute;
-      max-width: 50px;
-      max-height: 50px;
+      max-width: 70px;
+      max-height: 70px;
       min-width: 30px;
       min-height: 30px;
       height: 100%;
