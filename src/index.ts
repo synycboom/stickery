@@ -43,6 +43,7 @@ export default class TwitterFeature {
   private draggableItem: HTMLElement = null;
   private draggingInfo: DraggingInfo | null = null;
   private isDraggableItemAppended = false;
+  private dropPoints: HTMLElement[] = null;
   private stickedItemsMap: Record<string, Record<string, StickValue>> = {};
   private fetchingQueue: string[] = [];
   private isLoggedIn: boolean = false;
@@ -102,6 +103,12 @@ export default class TwitterFeature {
                 modal.close();
               });
               modal.open();
+            },
+            enterArea: (ctx, dropPointElements: HTMLElement[]) => {
+              this.dropPoints = dropPointElements;
+            },
+            exitArea: (ctx) => {
+              this.dropPoints = null;
             },
           },
         }),
@@ -205,6 +212,7 @@ export default class TwitterFeature {
     this.draggableItem.style.transform = 'translate(-50%, -50%)';
     this.draggableItem.style.height = '100px';
     this.draggableItem.style.width = '100px';
+    this.draggableItem.style.pointerEvents = 'none';
     this.draggableItem.style.zIndex = zIndex.toString();
     this.draggableItem.appendChild(loading);
     this.draggableItem.appendChild(image);
@@ -325,6 +333,15 @@ export default class TwitterFeature {
       this.initialized = true;
 
       document.body.addEventListener('mouseup', async (e) => {
+        const target = e.target as HTMLElement;
+        if (target.classList.contains('stickery-drop-point')) {
+          this.draggingInfo.postId = target.dataset.id;
+          this.draggingInfo.location = target.dataset.location;
+        } else {
+          this.draggingInfo.postId = '';
+          this.draggingInfo.location = '';
+        }
+
         if (this.draggableArea) {
           this.hideDraggableArea();
         }
@@ -354,37 +371,9 @@ export default class TwitterFeature {
 
           this.draggableItem.style.left = `${e.clientX}px`;
           this.draggableItem.style.top = `${e.clientY}px`;
-          this.showEnteredItem(e.clientX, e.clientY);
         },
         { passive: true },
       );
-    }
-  }
-
-  showEnteredItem(mousePositionX: number, mousePositionY: number) {
-    const dropableElements = Array.from(document.getElementsByClassName('stickery-drop-point'));
-    const dropableIndex = dropableElements.findIndex((elem) => {
-      const rect = elem.getBoundingClientRect();
-      if (elem.classList.contains('entered')) {
-        elem.classList.remove('entered');
-      }
-
-      return (
-        mousePositionX >= rect.left &&
-        mousePositionX <= rect.right &&
-        mousePositionY >= rect.top &&
-        mousePositionY <= rect.bottom
-      );
-    });
-
-    if (dropableIndex > -1) {
-      const enteredElement = dropableElements[dropableIndex] as HTMLElement;
-      enteredElement.classList.add('entered');
-      this.draggingInfo.postId = enteredElement.dataset.id;
-      this.draggingInfo.location = enteredElement.dataset.location;
-    } else {
-      this.draggingInfo.postId = '';
-      this.draggingInfo.location = '';
     }
   }
 

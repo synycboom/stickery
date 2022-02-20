@@ -78,7 +78,7 @@ const addStyles = (): void => {
       display: none;
     }
 
-    .${DROP_POINT_CLASS}.entered {
+    .${DROP_POINT_CLASS}:hover {
       background: rgb(56 143 116 / 0.5);
     }
 
