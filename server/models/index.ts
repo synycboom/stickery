@@ -1,3 +1,4 @@
+import logger from '../utils/logger';
 import initializeCategory from './category';
 import initializeSticker from './sticker';
 import initializePost from './post';
@@ -8,7 +9,7 @@ import sequelize from '../db';
 export async function initialize() {
   await sequelize.authenticate();
 
-  console.log('[initialize]: DB connection has been established successfully');
+  logger.info('[initialize]: DB connection has been established successfully');
 
   const Category = initializeCategory(sequelize);
   const Sticker = initializeSticker(sequelize);
@@ -43,7 +44,7 @@ export async function initialize() {
   await Post.sync({ alter: true });
   await Position.sync({ alter: true });
 
-  console.log('[initialize]: DB models has been initialized');
+  logger.info('[initialize]: DB models has been initialized');
 
   return sequelize;
 }

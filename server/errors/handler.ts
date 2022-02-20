@@ -1,4 +1,5 @@
 import express from 'express';
+import logger from '../utils/logger';
 import ValidationError from './validation';
 import NotFoundError from './notfound';
 import UnauthorizedError from './unauthorized';
@@ -18,7 +19,7 @@ const errorHandler: express.ErrorRequestHandler = (err, req, res, next) => {
     return res.status(204).end();
   }
 
-  console.error(err);
+  logger.error('unknown error', { message: err.message, stack: err.stack } );
 
   res.status(500).send('Internal Server Error');
 };

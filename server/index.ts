@@ -5,6 +5,7 @@ dotenv.config();
 import express, { Application } from "express";
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import logger from './utils/logger';
 import { initialize } from './models';
 import categoryRoutes from './apis/category';
 import stickerRoutes from './apis/sticker';
@@ -37,11 +38,11 @@ async function start() {
   await initialize();
 
   app.listen(port, (): void => {
-    console.log(`Running server on port ${port}`);
+    logger.info(`Running server on port ${port}`);
   });
 }
 
 start().catch((err) => {
-  console.error(err);
+  logger.error(err.message, { stack: err.stack });
   process.exit(1);
 });
