@@ -347,16 +347,16 @@ export default class TwitterFeature {
         if (this.draggingInfo) {
           this.draggingInfo.postId = '';
           this.draggingInfo.location = '';
-        }
 
-        while (target) {
-          if (target.classList.contains('stickery-drop-point')) {
-            this.draggingInfo.postId = target.dataset.id;
-            this.draggingInfo.location = target.dataset.location;
-            break;
+          while (target) {
+            if (target.classList.contains('stickery-drop-point')) {
+              this.draggingInfo.postId = target.dataset.id;
+              this.draggingInfo.location = target.dataset.location;
+              break;
+            }
+
+            target = target.parentElement;
           }
-
-          target = target.parentElement;
         }
 
         if (this.draggableArea) {
