@@ -15,9 +15,17 @@ const router = express.Router();
 
 const listPostsValidator = checkSchema({
   platform: {
-    isIn: {
-      options: ['twitter', 'instagram'],
-      errorMessage: 'platform must be one of "twitter" or "instagram"',
+    custom: {
+      options: (platform) => {
+        if (!platform) {
+          throw new Error('platform must be defined');
+        }
+        if (!['twitter', 'instagram'].includes(platform)) {
+          throw new Error('platform must be one of "twitter" or "instagram"');
+        }
+
+        return true;
+      }
     }
   },
 }, ['query']);
@@ -26,6 +34,11 @@ router.get(
   '/',
   listPostsValidator,
   asyncHandler(async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      throw new ValidationError(errors.array());
+    }
+
     const { foreignIds, platform } = req.query;
     const where: Record<string, any> = {};
     if (platform) {
@@ -65,15 +78,6 @@ const stickValidator = checkSchema({
       errorMessage: 'foreignId must not be empty',
     }
   },
-  platform: {
-    exists: {
-      errorMessage: 'platform must be defined',
-    },
-    isIn: {
-      options: ['twitter', 'instagram'],
-      errorMessage: 'platform must be one of "twitter" or "instagram"',
-    }
-  },
   position: {
     custom: {
       options: async (position, { req }) => {
@@ -83,6 +87,12 @@ const stickValidator = checkSchema({
 
         const location = position.location;
         const { platform } = req.body;
+        if (!platform) {
+          throw new Error('platform must be defined');
+        }
+        if (!['twitter', 'instagram'].includes(platform)) {
+          throw new Error('platform must be one of "twitter" or "instagram"');
+        }
         if (platform === 'twitter' && !VALID_TWITTER_POSITIONS.includes(location)) {
           throw new Error('position.location is not valid');
         }
@@ -146,15 +156,6 @@ const removeStickValidator = checkSchema({
       errorMessage: 'foreignId must not be empty',
     }
   },
-  platform: {
-    exists: {
-      errorMessage: 'platform must be defined',
-    },
-    isIn: {
-      options: ['twitter', 'instagram'],
-      errorMessage: 'platform must be one of "twitter" or "instagram"',
-    }
-  },
   position: {
     custom: {
       options: async (position, { req }) => {
@@ -164,6 +165,12 @@ const removeStickValidator = checkSchema({
 
         const location = position.location;
         const { platform } = req.body;
+        if (!platform) {
+          throw new Error('platform must be defined');
+        }
+        if (!['twitter', 'instagram'].includes(platform)) {
+          throw new Error('platform must be one of "twitter" or "instagram"');
+        }
         if (platform === 'twitter' && !VALID_TWITTER_POSITIONS.includes(location)) {
           throw new Error('position.location is not valid');
         }
