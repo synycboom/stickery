@@ -344,8 +344,10 @@ export default class TwitterFeature {
       document.body.addEventListener('mouseup', async (e) => {
         let target = e.target as HTMLElement;
 
-        this.draggingInfo.postId = '';
-        this.draggingInfo.location = '';
+        if (this.draggingInfo) {
+          this.draggingInfo.postId = '';
+          this.draggingInfo.location = '';
+        }
 
         while (target) {
           if (target.classList.contains('stickery-drop-point')) {
