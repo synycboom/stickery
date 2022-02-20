@@ -43,7 +43,6 @@ export default class TwitterFeature {
   private draggableItem: HTMLElement = null;
   private draggingInfo: DraggingInfo | null = null;
   private isDraggableItemAppended = false;
-  private dropPoints: HTMLElement[] = null;
   private stickedItemsMap: Record<string, Record<string, StickValue>> = {};
   private fetchingQueue: string[] = [];
   private isLoggedIn: boolean = false;
@@ -103,12 +102,6 @@ export default class TwitterFeature {
                 modal.close();
               });
               modal.open();
-            },
-            enterArea: (ctx, dropPointElements: HTMLElement[]) => {
-              this.dropPoints = dropPointElements;
-            },
-            exitArea: (ctx) => {
-              this.dropPoints = null;
             },
           },
         }),
@@ -333,13 +326,19 @@ export default class TwitterFeature {
       this.initialized = true;
 
       document.body.addEventListener('mouseup', async (e) => {
-        const target = e.target as HTMLElement;
-        if (target.classList.contains('stickery-drop-point')) {
-          this.draggingInfo.postId = target.dataset.id;
-          this.draggingInfo.location = target.dataset.location;
-        } else {
-          this.draggingInfo.postId = '';
-          this.draggingInfo.location = '';
+        let target = e.target as HTMLElement;
+
+        this.draggingInfo.postId = '';
+        this.draggingInfo.location = '';
+
+        while (target) {
+          if (target.classList.contains('stickery-drop-point')) {
+            this.draggingInfo.postId = target.dataset.id;
+            this.draggingInfo.location = target.dataset.location;
+            break;
+          }
+
+          target = target.parentElement;
         }
 
         if (this.draggableArea) {
