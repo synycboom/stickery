@@ -1,6 +1,6 @@
 # Stickery
 
-A dapplet that puts stickers on posts using the Dapplets Project infrastructure.
+A dapplet that puts stickers on posts using the Dapplets Project infrastructure. This is a bounty project from https://gitcoin.co/issue/ridgerock/stickery/1/100027435.
 
 ## Demo
 - Stickery on Twitter: https://youtu.be/2kHhvelgrL0
