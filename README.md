@@ -4,15 +4,9 @@ A dapplet that puts stickers on posts using the Dapplets Project infrastructure.
 
 ## Demo
 - Stickery on Twitter: https://youtu.be/2kHhvelgrL0
-<div width="100%">
-  <video src="https://youtu.be/2kHhvelgrL0"/>
-</div>
-
+- [![Alt text](https://img.youtube.com/vi/2kHhvelgrL0/0.jpg)](https://www.youtube.com/watch?v=2kHhvelgrL0)
 - Stickery on Instagram: https://youtu.be/LejA7AtBa8E
-<div width="100%">
-  <video src="https://youtu.be/LejA7AtBa8E"/>
-</div>
-
+- [![Alt text](https://img.youtube.com/vi/LejA7AtBa8E/0.jpg)](https://www.youtube.com/watch?v=LejA7AtBa8E)
 
 ## Project Structure
 - `root folder` contains the main dapplet.
